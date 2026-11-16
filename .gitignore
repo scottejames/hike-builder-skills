@@ -1,0 +1,15 @@
+# Secrets and personal data never belong in this repo
+.env
+.env.*
+*.env
+!hike-kit/env.example
+known-huts.yaml
+
+# Caches and generated files
+hike-kit/.tilecache/
+.osm/
+__pycache__/
+*.pyc
+*.pdf
+*.gpx
+streetview/

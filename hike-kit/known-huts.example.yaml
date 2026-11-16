@@ -1,0 +1,15 @@
+# Scout huts you can actually use. planAHike checks this list first (rules.md rule 14).
+# install.sh copies this file to <workspace>/known-huts.yaml; edit that copy, not this one.
+# Huts found in OpenStreetMap are only candidates: add one here only once you have confirmed access.
+huts: []
+#  - name: 1st Example Scout Hut
+#    group: 1st Example Scout Group
+#    grid_ref: TQ 000 000
+#    lat: 0.0
+#    lon: 0.0
+#    address: ""
+#    uses: [start_finish, toilet_stop, checkpoint]   # what you are allowed to use it for
+#    toilets: true
+#    parking: "about 6 cars on site"
+#    contact: "<role> - arrange 2 weeks ahead"       # how to book; no personal numbers
+#    notes: ""

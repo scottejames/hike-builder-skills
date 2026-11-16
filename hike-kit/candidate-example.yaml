@@ -1,0 +1,33 @@
+name: "Candidate F: Kithurst Hill – Amberley – South Stoke – Wepham Down"
+summary: >-
+  Circular route from Kithurst Hill car park. Teams follow the South Downs Way west along the ridge
+  to Amberley (toilets by the station), take the riverside path down the Arun to South Stoke, then
+  head east over Wepham Down on bridleways and climb back to Kithurst. No A-roads are crossed.
+routing_points: "START@50.90191,-0.48033;CP1@50.90319,-0.53080;CP2@50.89819,-0.53917;~50.89414,-0.54735;CP3@50.88817,-0.54638;CP4@50.88878,-0.51851;~50.88959,-0.51346;CP5@50.88547,-0.49319;FINISH@50.90191,-0.48033"
+pace_kmh: 4
+checkpoints:
+  - {id: START, place: Kithurst Hill car park (free), access: vehicle, note: "Street View 2021"}
+  - {id: CP1, place: "South Downs Way at the top of High Titten lane", access: vehicle, note: "lane; Street View 2021 (user photo)"}
+  - {id: CP2, place: "New Barn Road by Amberley station: **toilets**", access: vehicle, toilets: true, note: "station / museum car parks"}
+  - {id: CP3, place: "South Stoke, where the bridleway leaves Stoke Road", access: vehicle, note: "Google Street View Jun 2026"}
+  - {id: CP4, place: "Bridleway junction at the end of the South Stoke farm lane", access: foot, note: "lane probably private: walk about 1.5 km from South Stoke"}
+  - {id: CP5, place: "Wepham Down bridleway junction", access: foot, note: "walk 2.3 km (35 min) from Kithurst"}
+  - {id: FINISH, place: Kithurst Hill car park, access: vehicle}
+rule_breaches:
+  - "**Road walking about 1.4 km** (rule 2 allows about 500 m): High Titten lane 760 m (the official South Downs Way route), B2139 at Houghton Bridge about 360 m, South Stoke lane about 270 m."
+  - "**Toilets at 35% of the distance**, on the lower edge of the 35–65% window. Any loop from the ridge reaches Amberley at about this point."
+  - "**13.4 km against the 12 km asked for** (12% over, tolerance 10%)."
+  - "**CP4 and CP5 are on foot only** (rule 9). Without CP4, the leg from South Stoke to CP5 would take about 68 min (over the 65 min limit)."
+  - "**Uneven legs:** START→CP1 takes 54 min, while CP1→CP2 and CP2→CP3 take 15 and 25 min."
+lost_risk:
+  - "CP2→CP3: riverside footpath from Houghton Bridge (unsigned paths). CP3 at South Stoke catches any team that goes wrong."
+  - "CP3→CP4→CP5: several junctions on open downland. The doglegs near CP4 are why it's a checkpoint."
+prewalk_checks:
+  - "CP2: are the toilets on New Barn Road public, and when do they open?"
+  - "B2139 at Houghton Bridge: is there a pavement for the 360 m stretch?"
+  - "CP4: can a leader drive the South Stoke farm lane, or is it private?"
+  - "CP5: where will the leader park and walk in from?"
+options:
+  - "Drop CP1 (START→CP2 becomes about 70 min, over the limit)."
+  - "Reverse the direction, so the climb to the ridge comes first and toilets fall at 65%."
+  - "Try a different area for a shorter loop with toilets nearer halfway."

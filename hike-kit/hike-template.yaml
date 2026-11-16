@@ -1,0 +1,107 @@
+# hike.yaml format reference (schema 1). One file per hike, in <workspace>/<slug>/hike.yaml.
+# planAHike writes it; documentMyHike (tools/build_docs.py) reads it.
+# Text fields may use **bold**. Grid refs written "TQ 333 129" are automatically
+# set in bold monospace. Follow the wording rules in documentation-style.md.
+# Worked example: hike-kit/examples/ditchling-stanmer.yaml
+schema: 1
+
+hike:
+  name: <Start place> – <Turn place> checkpoint route
+  slug: <kebab-case; also the folder name and output file prefix>
+  area: <e.g. South Downs, East Sussex>
+  section: Scouts            # Scouts | Cubs | Explorers  (picks pace defaults from rules.md)
+  date: null                 # "2027-03-14" or null
+  map: <OS Explorer sheet, e.g. OS Explorer OL11 Brighton & Hove>
+  type: circular             # circular | linear
+
+brief:                       # every interview answer, kept as given
+  location: ""
+  distance: ""
+  route_type: ""
+  section: ""
+  date_and_start: ""
+  teams: ""
+  must_include: []
+  avoid: []
+  toilet_preference: ""      # public toilets / named scout hut / confirmed café
+  base: ""                   # start/finish preference, e.g. a scout hut
+  streetview: no             # yes | no  (Google bills each image)
+  notes: ""
+  exceptions: []             # rule breaches you approved, e.g. "CP1 is on foot only (accepted: …)"
+                             # build_docs reads these: include "toilet" or "guide" to silence those checks
+
+pace: {}                     # optional overrides: planning_kmh, fastest_kmh, slowest_kmh
+
+teams:
+  count: null                # number of teams; set it to print closing times
+  start_interval_min: 10     # staggered starts
+  first_start: null          # "09:30" prints clock times; null prints +h:mm offsets
+  toilet_stop_min: {min: 0, max: 30}
+
+checkpoint_timing:           # optional overrides of rules.md
+  open_before_first_min: 30
+  close_after_last_min: 15
+
+route:
+  osm_bbox: [S, W, N, E]     # area of the .osm/ cache, printed by osm_fetch.py; the cache is rebuilt from it
+  routing_points: "START@lat,lon;~lat,lon;CP1@lat,lon;...;FINISH@lat,lon"   # THE route: every tool re-routes from this
+  distance_km: 0.0
+  bridleway_pct: 0
+  road_statement: no road walking
+  climb_note: ""             # e.g. "Add about 10 min for the climb from CP2 back to the finish."
+  verification: >-           # how the route was checked, and what to check on the day
+    ...
+
+checkpoints:                 # in walking order; START first, FINISH last
+  - id: START                # START | CP1..CPn | FINISH
+    name: <short name>       # used in the times table, map caption and photo titles
+    grid_ref: TQ 000 000     # 6-figure, computed from lat/lon (build_docs re-checks it)
+    lat: 0.0
+    lon: 0.0
+    km: 0.0                  # from plan_route.py output; build_docs checks it still matches
+    location: <what the place is + facilities; **toilets** in bold>
+    access: <road to arrive by and where to park; or "**On foot only:** x km (n min) from …">
+    vehicle_access: true
+    walk_in_min: null        # foot-only checkpoints: the leader's walk-in time
+    toilets: false           # true on the halfway toilet checkpoint
+    shared_with: null        # e.g. CP3 when one leader covers a place visited twice (set on both)
+
+leader_notes:                # blue boxes on page 1: one per shared or foot-only checkpoint
+  - title: ""
+    points: []
+
+legs:                        # one per pair of consecutive checkpoints
+  - from: START
+    to: CP1
+    effort: <mostly downhill | gentle climb | ...>
+    directions:              # each row starts with a verb; turn/compass words in **CAPS**
+      - {id: START, grid_ref: TQ 000 000, km: 0.0, text: "..."}
+      - {id: T1, grid_ref: TQ 000 000, lat: 0.0, lon: 0.0, km: 0.0, text: "Turn **RIGHT** ..."}   # T-points appear on the map
+      - {id: CP1, grid_ref: TQ 000 000, km: 0.0, text: "Arrive at ..."}
+
+safety: []                   # leader pack; name each road crossing
+kit: []                      # leader pack and team card
+
+emergency:
+  hospital: <nearest A&E>
+  extra: []
+
+team_card:
+  safety: []                 # in plain words for 10–14 year olds, with no place names
+
+streetview:
+  enabled: false
+  images_dir: streetview
+  locations:                 # one per distinct place; files <prefix>_h000/_h090/_h180/_h270.jpg
+    - checkpoints: [START, FINISH]
+      prefix: start_finish_<place>
+      grid_ref_used: TQ 000 000   # a 10-figure ref can target the exact roadside panorama
+      date: 2024-03
+      source: Google
+      caption: ""
+
+outputs:
+  leader_pack: true
+  team_card: true
+  gpx: true
+  map: true

@@ -1,0 +1,224 @@
+# Scout hike definition - read by documentMyHike (hike-kit/tools/build_docs.py).
+# Format reference: hike-kit/hike-template.yaml
+schema: 1
+
+hike:
+  name: Ditchling Beacon – Stanmer checkpoint route
+  slug: ditchling-stanmer
+  area: South Downs, East Sussex
+  section: Scouts
+  date: null
+  map: OS Explorer OL11 Brighton & Hove
+  type: circular
+
+brief:                      # planAHike interview answers, kept verbatim
+  location: Sussex
+  distance: circa 6 miles
+  route_type: circular
+  must_include: [toilet stop at halfway, bridleways, avoid roads]
+  checkpoints: road accessible where possible, 40-50 min apart as a guide, each CP issues the next grid ref
+  via_checkpoint: Moon's Bottom added (visited twice, one leader covers both)
+  streetview: yes
+  exceptions:
+    - "CP1/CP3 at Moon's Bottom is on foot only (accepted: navigation-critical junction)"
+    - "Legs 2-5 are shorter than the 40-50 min guide (accepted)"
+
+pace:                       # overrides rules.md settings
+  planning_kmh: 4
+  fastest_kmh: 5
+  slowest_kmh: 3
+
+teams:
+  count: null               # number of teams; null = closing times not calculated
+  start_interval_min: 10
+  first_start: null         # "09:30" prints clock times; null prints +h:mm offsets
+  toilet_stop_min: {min: 0, max: 30}
+
+checkpoint_timing:
+  open_before_first_min: 30
+  close_after_last_min: 15
+
+route:
+  osm_bbox: [50.855, -0.14, 50.915, -0.07]   # S,W,N,E area of the OSM cache (.osm/); re-fetched from this when stale
+  routing_points: "START@50.90076,-0.10515;~50.88825,-0.09308;CP1@50.88107,-0.10104;CP2@50.87154,-0.10224;CP3@50.88107,-0.10104;CP4@50.88854,-0.11493;FINISH@50.90076,-0.10515"
+  distance_km: 9.43
+  bridleway_pct: 91
+  road_statement: no road walking (just 400 m of village lane at Stanmer)
+  climb_note: Add about 10 min for the climb from CP2 back up to the finish (roughly 150 m of ascent).
+  verification: >-
+    Route traced on OpenStreetMap rights-of-way data; OpenRouteService and osm-nic foot routing agree on leg 1.
+    Street View photos of every checkpoint are on page 5. Check the line on OS Maps before the day.
+
+checkpoints:
+  - id: START
+    name: Ditchling Beacon NT car park
+    grid_ref: TQ 333 129
+    lat: 50.90076
+    lon: -0.10515
+    km: 0.0
+    location: Ditchling Beacon National Trust car park, on Ditchling Road just below the summit (248 m).
+    access: Ditchling Road from Brighton, or from Ditchling village up Ditchling Bostall. Car park on site (NT, charges may apply).
+    vehicle_access: true
+    toilets: false
+  - id: CP1
+    name: Moon's Bottom (1st visit)
+    grid_ref: TQ 336 107
+    lat: 50.88107
+    lon: -0.10104
+    km: 3.08
+    location: "**Moon's Bottom**: a crossing of tracks in the valley bottom (1st visit). Same place and leader as CP3."
+    access: "**On foot only:** about 1.2 km (20 min) up the main track from Stanmer village (CP2), or 1.4 km from CP4 past High Park Farm."
+    vehicle_access: false
+    walk_in_min: 20
+    toilets: false
+    shared_with: CP3
+  - id: CP2
+    name: Stanmer village (toilets)
+    grid_ref: TQ 336 097
+    lat: 50.87154
+    lon: -0.10224
+    km: 4.23
+    location: "**Stanmer village**, outside Stanmer Tea Rooms by the church. **Public toilets** and the tea room. Lunch stop."
+    access: Stanmer Park entrance off the A27 Lewes Road, then the park road to the village. Council pay car park by the church.
+    vehicle_access: true
+    toilets: true
+  - id: CP3
+    name: Moon's Bottom (2nd visit)
+    grid_ref: TQ 336 107
+    lat: 50.88107
+    lon: -0.10104
+    km: 6.05
+    location: "**Moon's Bottom** again (2nd visit). Teams arrive by a different track; see the note below."
+    access: As for CP1.
+    vehicle_access: false
+    toilets: false
+    shared_with: CP1
+  - id: CP4
+    name: Ditchling Road, High Park Farm crossing
+    grid_ref: TQ 326 115
+    lat: 50.88854
+    lon: -0.11493
+    km: 7.46
+    location: Where the bridleway from **High Park Farm** crosses **Ditchling Road**, about 2 km south of the Beacon. Teams cross the road here.
+    access: Ditchling Road (fast). Street View (Apr 2024) shows a verge pull-in at the crossing where cars park. Keep the gate clear.
+    vehicle_access: true
+    toilets: false
+  - id: FINISH
+    name: Ditchling Beacon NT car park
+    grid_ref: TQ 333 129
+    lat: 50.90076
+    lon: -0.10515
+    km: 9.43
+    location: Ditchling Beacon National Trust car park (same as start).
+    access: As for start.
+    vehicle_access: true
+    toilets: false
+
+leader_notes:               # blue boxes on page 1
+  - title: "CP1/CP3 leader at Moon's Bottom: how to tell which visit a team is on"
+    points:
+      - "Teams coming **DOWN from the north**, off the open hillside from Bow Hill and Stanmer Down, are on their **1st visit (CP1)**. Give them **CP2: TQ 336 097**. They leave **south-west** down the track to Stanmer."
+      - "Teams coming **UP from the south-east**, along the track out of Stanmer Great Wood, are on their **2nd visit (CP3)**. Give them **CP4: TQ 326 115**. They leave **north-north-west** on the bridleway to High Park Farm."
+      - If you're unsure, ask whether they've been to Stanmer yet, or check their team card for a CP2 time.
+      - Walk in from Stanmer (about 20 min) so you're in position before the opening time on page 4.
+
+legs:
+  - from: START
+    to: CP1
+    effort: mostly downhill
+    directions:
+      - {id: START, grid_ref: TQ 333 129, km: 0.0, text: "Cross Ditchling Road together onto the **South Downs Way** (acorn signs). Head **EAST** along the ridge on the wide chalk track."}
+      - {id: T1, grid_ref: TQ 338 128, lat: 50.89925, lon: -0.09799, km: 0.55, text: "Turn **RIGHT** off the South Downs Way onto the bridleway heading south-east downhill across open downland."}
+      - {id: T2, grid_ref: TQ 343 117, lat: 50.88956, lon: -0.09135, km: 1.8, text: "Fork **RIGHT** (south-west) at the bridleway junction near Bow Hill and keep going downhill into the valley."}
+      - {id: CP1, grid_ref: TQ 336 107, km: 3.08, text: "Arrive at **Moon's Bottom**, a crossing of tracks in the valley bottom."}
+  - from: CP1
+    to: CP2
+    effort: downhill
+    directions:
+      - {id: CP1, grid_ref: TQ 336 107, km: 3.08, text: "Take the track heading **SOUTH-WEST**, downhill towards Stanmer."}
+      - {id: T3, grid_ref: TQ 335 101, lat: 50.87547, lon: -0.10370, km: 3.76, text: "Keep **LEFT** on the main track down to the edge of Stanmer village."}
+      - {id: CP2, grid_ref: TQ 336 097, km: 4.23, text: "Follow the village lane to the **Tea Rooms**. Toilets and lunch."}
+  - from: CP2
+    to: CP3
+    effort: gentle climb
+    directions:
+      - {id: T4, grid_ref: TQ 336 096, lat: 50.87064, lon: -0.10197, km: 4.33, text: "Walk south along the lane from the tea rooms and turn **LEFT** past the church."}
+      - {id: T5, grid_ref: TQ 337 095, lat: 50.87029, lon: -0.10093, km: 4.42, text: "Turn **LEFT** off the lane onto the path heading **EAST** across the park."}
+      - {id: T6, grid_ref: TQ 341 096, lat: 50.87093, lon: -0.09545, km: 4.81, text: "Turn sharp **LEFT** (north) at the edge of the woods onto the wide track into **Stanmer Great Wood**. Stay on the main track for 1.2 km."}
+      - {id: CP3, grid_ref: TQ 336 107, km: 6.05, text: "Arrive back at **Moon's Bottom**, from the south-east."}
+  - from: CP3
+    to: CP4
+    effort: steady climb
+    directions:
+      - {id: CP3, grid_ref: TQ 336 107, km: 6.05, text: "Take the bridleway heading **NORTH-WEST**. This is not the track to the north-east that teams came down on leg 1."}
+      - {id: T7, grid_ref: TQ 330 114, lat: 50.88749, lon: -0.10974, km: 7.02, text: "Bear **LEFT** (west) by the **High Park Farm** buildings, along the track towards the road."}
+      - {id: CP4, grid_ref: TQ 326 115, km: 7.46, text: "Stop at the checkpoint on **Ditchling Road**. Gather the whole team before crossing."}
+  - from: CP4
+    to: FINISH
+    effort: climb back to the ridge
+    directions:
+      - {id: CP4, grid_ref: TQ 326 115, km: 7.46, text: "**Cross Ditchling Road together** and take the bridleway on the west side heading **NORTH**, uphill."}
+      - {id: T8, grid_ref: TQ 328 121, lat: 50.89316, lon: -0.11247, km: 8.1, text: "Bear **RIGHT** at the bridleway junction."}
+      - {id: T9, grid_ref: TQ 329 123, lat: 50.89501, lon: -0.11151, km: 8.32, text: "Turn **RIGHT**, then follow the bridleway north up to the ridge."}
+      - {id: T10, grid_ref: TQ 332 130, lat: 50.90164, lon: -0.10648, km: 9.27, text: "Turn **RIGHT** onto the South Downs Way. **FINISH** is about 150 m ahead."}
+
+safety:
+  - "**Ditchling Road** is crossed at the START and at **CP4**. It's fast, so teams cross together under supervision."
+  - "**Moon's Bottom (CP1/CP3)** is visited twice and teams leave by a different track each time. The leader there checks that each team heads the right way."
+  - "**Bikes and horses:** the bridleways are busy at weekends. Walk to one side and give horses room."
+  - "**Mud:** the woodland tracks in Stanmer Great Wood get very muddy in winter. Everyone needs boots."
+  - "**Weather:** the ridge is exposed, so expect it to be colder and windier than in Brighton."
+  - Livestock graze on the downs. Close gates, and keep calm, quiet and together.
+
+kit:
+  - Walking boots, warm layers, and a waterproof jacket and trousers
+  - Hat and gloves (in season)
+  - Packed lunch, snacks and at least 1 litre of water
+  - Personal first aid and medication
+  - Map (OS Explorer OL11), compass, whistle and the team card
+  - A charged phone with the leaders' numbers saved
+
+emergency:
+  hospital: Royal Sussex County Hospital, Eastern Road, Brighton
+
+team_card:
+  safety:
+    - You will cross a busy road twice. Stop, gather the whole team, and cross together.
+    - Keep to one side of the track for bikes and horses.
+    - Close every gate behind you.
+    - Stay together. Never split the team.
+
+streetview:
+  enabled: true
+  images_dir: streetview
+  locations:                # one row per distinct place; images <prefix>_h000/090/180/270.jpg
+    - checkpoints: [START, FINISH]
+      prefix: start_finish_ditchling_beacon
+      grid_ref_used: TQ 333 129
+      date: 2024-03
+      source: Google
+      caption: car park entrance on Ditchling Road
+    - checkpoints: [CP1, CP3]
+      prefix: cp1_cp3_moons_bottom
+      grid_ref_used: TQ 336 107
+      date: 2025-04
+      source: user photo © John Shaw
+      caption: taken on the track crossing itself
+    - checkpoints: [CP2]
+      prefix: cp2_stanmer
+      grid_ref_used: TQ 336 097
+      date: 2023-06
+      source: Google
+      caption: village lane; picnic tables on the right looking south
+    - checkpoints: [CP4]
+      prefix: cp4_ditchling_road
+      grid_ref_used: TQ 32686 11587
+      date: 2024-04
+      source: Google
+      caption: verge pull-in with cars parked; gate and fingerpost visible looking north
+
+outputs:
+  leader_pack: true
+  team_card: true
+  gpx: true
+  map: true
