@@ -47,7 +47,7 @@ Your keys, huts and hikes stay in the workspace. A `git pull` in this repo updat
 ### 2. Clone and link into a workspace
 
 ```sh
-git clone https://github.com/scottejames/hikeBuilder.git ~/projects/hikeBuilder
+git clone https://github.com/scottejames/hike-builder-skills.git ~/projects/hikeBuilder
 ~/projects/hikeBuilder/install.sh ~/hiking     # the workspace folder; created if missing
 ```
 
