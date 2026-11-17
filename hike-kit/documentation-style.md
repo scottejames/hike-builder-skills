@@ -49,7 +49,7 @@ Written by `tools/staffing.py` on every build (`outputs.staffing`, default true)
 - **CP1, CP2 …** one checkpoint leader per checkpoint. A shared checkpoint (e.g. CP1/CP3) is one row.
 - **M1, M2 …** one crossing marshal per significant road crossing (rule 23). A checkpoint leader never doubles as a marshal.
 
-Columns: ID · Role · Location · Grid ref · In place by · Until · Name · Mobile · Notes. Times match the leader pack's opening and closing times. The user edits Name, Mobile and Notes and writes under "## Planning notes". A rebuild keeps those (matched by ID); a role that disappears after a route change moves to "## Removed roles". Names filled in here appear in the leader pack's checkpoint log and on the website.
+Columns: ID · Role · Location · Grid ref · In place by · Until · Name · Mobile · Notes. Times match the leader pack's opening and closing times. The user edits Name, Mobile and Notes and writes under "## Planning notes". A rebuild keeps those (matched by ID); a role that disappears after a route change moves to "## Removed roles". Names filled in here appear in the leader pack's checkpoint log and on the website. The `.md` is the only local copy; `publish_site.py` renders it to a landscape PDF (`<slug>_staffing.pdf`) for the website at deploy time and never uploads the `.md`.
 
 ## Team card (1 page)
 

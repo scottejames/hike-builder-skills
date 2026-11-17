@@ -10,7 +10,7 @@ The site is rebuilt from scratch from the hike folders every time, so it always 
 ## 1. Check
 
 - Every hike to publish must have its documents built. A folder with `hike.yaml` but no leader pack is skipped; offer to run **/documentMyHike <slug>** for it first.
-- Each hike page shows its staffing sheet (`<slug>_staffing.md`) as a table and links the file, so names and mobiles the user has filled in go on the site. That's fine behind the password, but mention it when you report.
+- Each hike page shows its staffing sheet (`<slug>_staffing.md`) as a table and links a PDF of it (made at deploy time; the `.md` stays local only), so names and mobiles the user has filled in go on the site. That's fine behind the password, but mention it when you report.
 - `.env` in the workspace must hold `HIKE_SITE_AMPLIFY_APP_ID` (and optionally `HIKE_SITE_BRANCH`, default `main`). If it's missing, do the one-off setup below.
 
 ## 2. Publish

@@ -7,7 +7,7 @@ Claude Code skills for planning a **scout checkpoint hike** in Great Britain and
   - **a leader pack PDF:** checkpoint table with 6-figure grid refs, leg-by-leg directions, a contour map, opening and closing times for staggered starts, safety and kit notes, and Street View photos of each checkpoint
   - **a one-page team card**
   - **an event risk assessment PDF**: your group's base risk assessment (kept privately in the workspace as `risk-assessment.yaml`) plus the hazards unique to the route
-  - **a staffing sheet** (`<slug>_staffing.md`): every person needed (leader in charge, booking-in leader who also runs the start, finish leader, one per checkpoint, one marshal per significant road crossing) with place and in-place time. You fill in names and mobiles; rebuilds keep them
+  - **a staffing sheet** (`<slug>_staffing.md`): every person needed (leader in charge, booking-in leader who also runs the start, finish leader, one per checkpoint, one marshal per significant road crossing) with place and in-place time. You fill in names and mobiles; rebuilds keep them. The website gets a PDF of it
   - **a GPX file** for OS Maps
 - **`/publishHikes`** (optional) publishes every documented hike to a small password-protected website on AWS Amplify Hosting, so other leaders can view the routes and download the packs. It needs the AWS CLI and a one-off setup described in [`skills/publishHikes/SKILL.md`](skills/publishHikes/SKILL.md).
 

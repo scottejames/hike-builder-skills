@@ -11,7 +11,8 @@ The site is regenerated from the hike folders every time and never stored: each
 <workspace>/<slug>/ with a hike.yaml and a built leader pack becomes a page with the
 summary, checkpoint table, map and leg directions, plus links to the leader pack,
 team card, risk assessment, staffing sheet, GPX and full-size map. The staffing
-sheet (<slug>_staffing.md, edited by hand) is also shown as a table on the page. The index lists every hike. Hikes without
+sheet (<slug>_staffing.md, edited by hand) is shown as a table and published as a PDF made at
+deploy time; the .md itself is not uploaded. The index lists every hike. Hikes without
 documents yet are skipped with a warning (run documentMyHike first).
 
 Hosting settings come from <workspace>/.env (never commit them):
@@ -67,7 +68,7 @@ def hike_page(h, slug, have, hd):
          f'<p class="sub">{" · ".join(x for x in facts if x)}</p>']
     if H.get("date"): o.append(f'<p><b>Date:</b> {html.escape(str(H["date"]))}</p>')
     if r.get("road_statement"): o.append(f'<p><b>Roads:</b> {md(r["road_statement"])}</p>')
-    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "ra": "Risk assessment (PDF)", "staff": "Staffing sheet (Markdown)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
+    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "ra": "Risk assessment (PDF)", "staff": "Staffing sheet (PDF)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
     o.append('<p class="dl">' + "".join(f'<a href="{have[k]}">{names[k]}</a>' for k in names if k in have) + "</p>")
 
     o.append('<h2>Checkpoints</h2><div class="wrap"><table><tr><th>CP</th><th>Grid ref</th><th>Location</th><th>Access for leaders</th><th>km</th></tr>')
@@ -81,12 +82,12 @@ def hike_page(h, slug, have, hd):
     if r.get("verification"): o.append(f'<p class="verify"><b>Verification and pre-walk checks:</b> {md(r["verification"])}</p>')
 
     if "staff" in have:
-        rows, header, notes = staffing.parse(os.path.join(hd, have["staff"]))
+        rows, header, notes = staffing.parse(staffing.path(hd, slug))
         live = [x for x in rows.values() if not x.get("_removed")]
         named = sum(1 for x in live if x.get("Name"))
         cols = [c for c in staffing.COLS if c != "Notes" or any(x.get("Notes") for x in live)]
         o.append(f'<h2>Staffing</h2><p class="sub">{len(live)} people needed, {named} named so far. '
-                 f'Edit <code>{have["staff"]}</code> in the hike folder and republish to update.</p><div class="wrap"><table>'
+                 f'Names come from <code>{slug}_staffing.md</code> in the hike folder; republish to update.</p><div class="wrap"><table>'
                  + "<tr>" + "".join(f"<th>{c}</th>" for c in cols) + "</tr>"
                  + "".join("<tr>" + "".join(f'<td>{gr(x.get(c, "")) if c == "Grid ref" and x.get(c) else md(x.get(c, ""))}</td>' for c in cols) + "</tr>" for x in live)
                  + "</table></div>")
@@ -120,11 +121,15 @@ def build(ws, out):
         if "pack" not in have:
             print(f"skip {slug}: no leader pack yet (run /documentMyHike {slug})"); continue
         d = os.path.join(out, slug); os.makedirs(d, exist_ok=True)
-        for f in have.values(): shutil.copy2(os.path.join(hd, f), d)
+        for k, f in have.items():
+            if k == "staff":  # the .md is the editable source; the site gets a PDF of it
+                staffing.to_pdf(os.path.join(hd, f), os.path.join(d, f"{slug}_staffing.pdf"))
+            else: shutil.copy2(os.path.join(hd, f), d)
         if "map" in have:  # web-sized preview; the full PNG stays linked
             im = Image.open(os.path.join(hd, have["map"])).convert("RGB"); im.thumbnail((1600, 1600))
             im.save(os.path.join(d, "map.jpg"), quality=82)
-        open(os.path.join(d, "index.html"), "w").write(hike_page(h, slug, have, hd))
+        page_have = dict(have, staff=f"{slug}_staffing.pdf") if "staff" in have else have
+        open(os.path.join(d, "index.html"), "w").write(hike_page(h, slug, page_have, hd))
         H, cps = h["hike"], h["checkpoints"]; tot = cps[-1]["km"]
         rows.append(f'<tr><td><a href="{slug}/"><b>{html.escape(H["name"])}</b></a></td><td>{html.escape(H.get("area", ""))}</td>'
                     f'<td>{tot:.1f} km ({tot/1.609344:.1f} mi)</td><td>{html.escape(H.get("section", ""))}</td>'
