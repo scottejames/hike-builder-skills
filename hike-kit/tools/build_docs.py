@@ -239,8 +239,9 @@ def doc(title, body, fs):
     return f'<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{html.escape(title)}</title><style>{css}</style></head><body>\n{body}\n</body></html>'
 
 def cellp(t):
-    """LibreOffice adds paragraph spacing inside table cells; wrap each cell in a zero-margin <p>."""
-    return re.sub(r'(<t[dh][^>]*>)(.*?)(</t[dh]>)', r'\1<p style="margin-top:0;margin-bottom:0">\2</p>\3', t)
+    """LibreOffice adds an empty line of paragraph spacing inside table cells and ignores a
+    zero-margin <p>; wrapping each cell's content in a <div> removes it."""
+    return re.sub(r'(<t[dh][^>]*>)(.*?)(</t[dh]>)', r'\1<div>\2</div>\3', t)
 
 def gr(g):
     return f'<span class="gr">{g.replace(" ", "&nbsp;")}</span>'

@@ -7,6 +7,7 @@ Claude Code skills for planning a **scout checkpoint hike** in Great Britain and
   - **a leader pack PDF:** checkpoint table with 6-figure grid refs, leg-by-leg directions, a contour map, opening and closing times for staggered starts, safety and kit notes, and Street View photos of each checkpoint
   - **a one-page team card**
   - **a GPX file** for OS Maps
+- **`/publishHikes`** (optional) publishes every documented hike to a small password-protected website on AWS Amplify Hosting, so other leaders can view the routes and download the packs. It needs the AWS CLI and a one-off setup described in [`skills/publishHikes/SKILL.md`](skills/publishHikes/SKILL.md).
 
 The planning rules include toilets at halfway, no walking along roads, bridleways preferred, checkpoints a leader can drive to, and extra checkpoints where teams could get lost. They live in [`hike-kit/rules.md`](hike-kit/rules.md). The wording and layout of the documents is set in [`hike-kit/documentation-style.md`](hike-kit/documentation-style.md). Both files are yours to edit.
 
@@ -14,7 +15,7 @@ The planning rules include toilets at halfway, no walking along roads, bridleway
 
 ```
 hikeBuilder/            <- this repo (public)
-  skills/planAHike/  skills/documentMyHike/
+  skills/planAHike/  skills/documentMyHike/  skills/publishHikes/
   hike-kit/             tools, rules, style spec, templates, worked example
   install.sh
 
@@ -110,6 +111,7 @@ Run `claude mcp list` to check that the servers show **Connected**.
 cd ~/hiking && claude
 > /planAHike
 > /documentMyHike <hike-name>
+> /publishHikes                # optional: update the leaders' website
 ```
 
 To try the worked example, copy `hike-kit/examples/ditchling-stanmer.yaml` to `~/hiking/ditchling-stanmer/hike.yaml` and run `/documentMyHike ditchling-stanmer`.
