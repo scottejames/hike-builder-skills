@@ -50,6 +50,7 @@ Render the pages with `pdftoppm -r 70 -png <pdf> <scratchpad>/pg`, then Read eac
 - **Page 4:** opening times present, with closing times when `teams.count` is set; the checkpoint log.
 - **Page 5:** four images per location, each with date and source.
 - **Team card:** the start grid ref only; numbered rows with no checkpoint names; 1 page.
+- **Staffing sheet** (`<slug>_staffing.md`): one row each for LIC, BOOK, FIN, every checkpoint (a shared CP is one row) and every crossing marshal; in-place times match page 4. The build keeps any Name, Mobile and Notes the user typed. Never overwrite or blank them by hand.
 - **Risk assessment:** landscape; header boxes; route notes shaded in the 4th column; every route risk numbered R1, R2 …; sign-off box.
 - **Everywhere:** grid refs in bold monospace and never wrapped.
 
@@ -66,7 +67,8 @@ Keep only material a person adjusts or reads; never keep anything that can be re
 - `hike.yaml`, the source
 - `streetview/`, photos that cost money to re-fetch
 - `.osm/`, a disposable cache
-- the outputs people read: leader pack PDF, team card PDF, GPX, and map PNG
+- the outputs people read: leader pack PDF, team card PDF, risk assessment PDF, GPX, and map PNG
+- `<slug>_staffing.md`, the staffing sheet. It's generated, but the user edits it (names, mobiles, notes), so it is source too: never delete it
 
 Run `ls -A <slug>` to confirm.
 
@@ -77,6 +79,7 @@ Run `ls -A <slug>` to confirm.
 - the file paths
 - the page counts
 - the opening times (and closing times, if set)
+- the staffing headcount, and that names go in `<slug>_staffing.md` (kept on every rebuild)
 - any remaining WARNs or "check on the day" items
 - the number of Street View images fetched (they're billed)
 

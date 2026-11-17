@@ -16,6 +16,7 @@ cache, it is refreshed once and retried.
 Writes into HIKE_DIR (see hike-kit/documentation-style.md):
   <slug>_leader_pack.pdf, <slug>_team_card.pdf, <slug>_risk_assessment.pdf (when the
   workspace has risk-assessment.yaml; see risk_assessment.py),
+  <slug>_staffing.md (editable: names typed into it are kept; see staffing.py),
   <slug>.gpx, <slug>_map.png
 
 PDF pipeline (LibreOffice lessons): text pages are separate HTML files that
@@ -165,7 +166,7 @@ def check_crossings(h, E, R):
         if "lat" in e and gridref(e["lat"], e["lon"]) != e.get("grid_ref"): err.append(f"{lab}: grid_ref does not match its coordinates")
         if e.get("no_crossing"): continue
         s_ = e.get("supervised_by")
-        if s_ not in sup: err.append(f"{lab}: supervised_by '{s_}' is not a checkpoint or marshal id"); continue
+        if s_ not in M: err.append(f"{lab}: supervised_by '{s_}' must be a crossing marshal id - every significant crossing has its own marshal (rule 23)"); continue
         d = hav((sup[s_]["lat"], sup[s_]["lon"]), (e["lat"], e["lon"]))
         if d > E["cover_m"]: err.append(f"{lab}: {s_} is {d:.0f} m away, more than crossing_cover_m {E['cover_m']} m (rule 23)")
         if k not in used and not e.get("manual"): warn.append(f"{lab}: not found on the route (stale?) - set manual: true if you added it by hand")
@@ -370,7 +371,8 @@ def page_legs(h, E, T, break_before=None):
         o.append("</table>")
     return cellp("\n".join(o))
 
-def page_safety(h, E, T):
+def page_safety(h, E, T, staff=None):
+    staff = staff or {}
     teams = E["teams"]; start = teams.get("first_start"); P = E["pace"]; C = cpmap(h)
     L = ['<h2 style="margin-top:0">Safety notes</h2><ul>' + "".join(f"<li>{md(s)}</li>" for s in h.get("safety", [])) + "</ul>",
          '<h2>Kit list</h2><ul>' + "".join(f"<li>{md(s)}</li>" for s in h.get("kit", [])) + "</ul>"]
@@ -385,14 +387,14 @@ def page_safety(h, E, T):
          '<table width="100%" border="1" cellspacing="0" cellpadding="2">']
     if not start:
         R.append(f'<tr><td colspan="{6 if has_close else 5}" height="22"><b>First team start time:</b> ____________ &nbsp;(add the offsets below)</td></tr>')
-    R.append(f'<tr><th width="24%">CP</th><th>Open by (−{E["open_before"]} min)</th><th>Earliest arrival ({P["fastest_kmh"]:g} km/h)</th>'
+    R.append(f'<tr><th width="32%">CP</th><th>Open by (−{E["open_before"]} min)</th><th>Earliest arrival ({P["fastest_kmh"]:g} km/h)</th>'
              f'<th>Plan ({P["planning_kmh"]:g} km/h)</th>' + (f'<th>Close (+{E["close_after"]} min)</th>' if has_close else "")
-             + ('<th width="15%">Clock time to open</th>' if not start else "") + "</tr>")
+             + ('<th width="12%">Clock time to open</th>' if not start else "") + "</tr>")
     Mn = {m["id"]: m for m in h.get("marshals") or []}
     for r in sorted(T[1:] + marshal_timings(h, E), key=lambda r: r["km"]):
         c = Mn[r["id"]] if r.get("marshal") else C[r["id"]]
         op = f'(already open as {r["open_shared"]})' if r.get("open_shared") else f'<b>{hm(r["open"], start)}</b>'
-        nm = f'{r["id"]} marshal: {html.escape(short(c))}' if r.get("marshal") else f'{r["id"]} {html.escape(short(c))}'
+        nm = f'{r["id"]} marshal' if r.get("marshal") else f'{r["id"]} {html.escape(short(c))}'
         row = f'<tr><td>{nm}</td><td>{op}</td><td>{hm(r["earliest"], start)}</td><td>{hm(r["planned"], start)}</td>'
         if has_close: row += f'<td>{"(as " + r["close_shared"] + ")" if r.get("close_shared") else "<b>" + hm(r["close"], start) + "</b>"}</td>'
         if not start: row += "<td></td>"
@@ -406,7 +408,7 @@ def page_safety(h, E, T):
                     f'{P["slowest_kmh"]:g} km/h' + (f' with a {E["stop"]["max"]} min stop at {tc["id"]}.' if tc else "."))
     else:
         expl.append("Set <b>teams.count</b> in hike.yaml to get closing times.")
-    if Mn: expl.append("Marshals (M) time their arrival like a checkpoint opening.")
+    if Mn: expl.append("Crossing marshals (M) are listed with their roads on page 1 and time their arrival like a checkpoint opening.")
     for c in h["checkpoints"]:
         if c.get("walk_in_min"):
             r = next(x for x in T if x["id"] == c["id"])
@@ -418,11 +420,14 @@ def page_safety(h, E, T):
              '<tr><th width="20%">CP</th><th>Leader / mobile</th><th width="19%">Team in</th><th width="19%">Team out</th></tr>')
     seen = {}
     for c in h["checkpoints"]:
-        lead = f'(same leader as {seen[c["shared_with"]]})' if c.get("shared_with") in seen else ""
+        sid = "/".join(sorted({c["id"], c.get("shared_with") or c["id"]}, key=lambda x: [x != c["id"], x]))
+        sid = next((k for k in staff if c["id"] in k.split("/")), sid)
+        lead = f'(same leader as {seen[c["shared_with"]]})' if c.get("shared_with") in seen else \
+               html.escape(staff.get({"START": "BOOK", "FINISH": "FIN"}.get(c["id"], sid), ""))
         seen[c["id"]] = c["id"]
-        R.append(f'<tr><td height="26">{c["id"]}</td><td>{lead}</td><td></td><td></td></tr>')
+        R.append(f'<tr><td height="22">{c["id"]}</td><td>{lead}</td><td></td><td></td></tr>')
     R.append('</table><table width="100%" border="1" cellspacing="0" cellpadding="3" style="margin-top:2mm">'
-             + "".join(f'<tr><td width="40%" height="24"><b>{k}</b></td><td width="60%">{v}</td></tr>'
+             + "".join(f'<tr><td width="40%" height="20"><b>{k}</b></td><td width="60%">{v}</td></tr>'
                        for k, v in [("Date", html.escape(str(h["hike"].get("date") or ""))), ("Team name / size", ""), ("Start time", ""), ("Home contact", "")])
              + "</table>")
     return ('<table width="100%" border="0" cellspacing="0" cellpadding="0"><tbody><tr><td width="50%" valign="top" style="padding-right:4mm">'
@@ -609,8 +614,13 @@ def main():
     map_png = os.path.join(hd, f"{slug}_map.png")
     render_map.render(track, markers(h), map_png); print("wrote", map_png)
     if O.get("gpx", True): gpx(h, track, os.path.join(hd, f"{slug}.gpx")); print("wrote", os.path.join(hd, f"{slug}.gpx"))
+    staff = {}
+    if O.get("staffing", True):  # editable sheet: names typed into it survive every rebuild
+        import staffing
+        sp, n, named = staffing.write(h, hd, E, T, marshal_timings(h, E), hm)
+        print("wrote", sp, f"({n} people, {named} named)"); staff = staffing.names(hd, slug)
     title = f"Scout Hike: {h['hike']['name']}"
-    p1, p2, p4 = page_checkpoints(h, E, T, warn), page_legs(h, E, T), page_safety(h, E, T)
+    p1, p2, p4 = page_checkpoints(h, E, T, warn), page_legs(h, E, T), page_safety(h, E, T, staff)
     sv_on = bool((h.get("streetview") or {}).get("enabled"))
     tmp = tempfile.mkdtemp(prefix="hikedocs_")
     try:

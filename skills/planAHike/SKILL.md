@@ -81,6 +81,7 @@ Follow `hike-kit/hike-template.yaml`, with `hike-kit/examples/ditchling-stanmer.
 - **Leader notes:** add one entry per shared or foot-only checkpoint. For shared checkpoints, say how to tell the visits apart by arrival direction, and which grid ref to give.
 - **Other sections:** fill in safety (name every road crossing), kit, emergency (nearest A&E), team-card safety in plain words, and `route.verification`. Mark anything unverified "check on the day".
 - **Risk assessment:** add a `risk_assessment:` section with this route's own hazards in `route_risks` (roads, water, railways, foot-only checkpoints, exposure, livestock and so on) and route notes in `changes`. documentMyHike reviews it again.
+- **Staffing:** leave `outputs.staffing` true. documentMyHike writes `<slug>_staffing.md`: one person per checkpoint and per crossing marshal, plus leader in charge, booking-in (who also runs the start) and finish. Each extra marshal is one more person, so say the headcount when you show the preview.
 - **Street View:** set `streetview.enabled` from the brief. If it's enabled, add one `locations` entry per distinct place, with `prefix` set and `date`/`source` left blank for documentMyHike to fill in.
 
 ## 6. Validate and hand over

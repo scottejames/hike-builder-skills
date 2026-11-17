@@ -127,7 +127,7 @@ legs:
     to: CP1
     effort: mostly downhill
     directions:
-      - {id: START, grid_ref: TQ 333 129, km: 0.0, text: "Cross Ditchling Road together onto the **South Downs Way** (acorn signs). Head **EAST** along the ridge on the wide chalk track."}
+      - {id: START, grid_ref: TQ 333 129, km: 0.0, text: "Cross Ditchling Road together with marshal **M1** onto the **South Downs Way** (acorn signs). Head **EAST** along the ridge on the wide chalk track."}
       - {id: T1, grid_ref: TQ 338 128, lat: 50.89925, lon: -0.09799, km: 0.55, text: "Turn **RIGHT** off the South Downs Way onto the bridleway heading south-east downhill across open downland."}
       - {id: T2, grid_ref: TQ 343 117, lat: 50.88956, lon: -0.09135, km: 1.8, text: "Fork **RIGHT** (south-west) at the bridleway junction near Bow Hill and keep going downhill into the valley."}
       - {id: CP1, grid_ref: TQ 336 107, km: 3.08, text: "Arrive at **Moon's Bottom**, a crossing of tracks in the valley bottom."}
@@ -157,17 +157,33 @@ legs:
     to: FINISH
     effort: climb back to the ridge
     directions:
-      - {id: CP4, grid_ref: TQ 326 115, km: 7.46, text: "**Cross Ditchling Road together** and take the bridleway on the west side heading **NORTH**, uphill."}
+      - {id: CP4, grid_ref: TQ 326 115, km: 7.46, text: "**Cross Ditchling Road together** with marshal **M2** and take the bridleway on the west side heading **NORTH**, uphill."}
       - {id: T8, grid_ref: TQ 328 121, lat: 50.89316, lon: -0.11247, km: 8.1, text: "Bear **RIGHT** at the bridleway junction."}
       - {id: T9, grid_ref: TQ 329 123, lat: 50.89501, lon: -0.11151, km: 8.32, text: "Turn **RIGHT**, then follow the bridleway north up to the ridge."}
       - {id: T10, grid_ref: TQ 332 130, lat: 50.90164, lon: -0.10648, km: 9.27, text: "Turn **RIGHT** onto the South Downs Way. **FINISH** is about 150 m ahead."}
 
-road_crossings:              # every contact with a significant road (rule 23) and who supervises it
-  - {road: Ditchling Road / Ditchling Bostall at the Beacon car park, grid_ref: TQ 333 129, lat: 50.90074, lon: -0.10461, km: 0.05, supervised_by: START}
-  - {road: Ditchling Road at High Park Farm, grid_ref: TQ 326 115, lat: 50.88854, lon: -0.11493, km: 7.46, supervised_by: CP4}
+marshals:                    # crossing marshals (rule 23): one dedicated adult per significant crossing
+  - id: M1
+    name: Ditchling Road at the Beacon car park
+    grid_ref: TQ 333 129
+    lat: 50.90074
+    lon: -0.10461
+    km: 0.05
+    access: "Park in the Ditchling Beacon car park (START)."
+  - id: M2
+    name: Ditchling Road at High Park Farm
+    grid_ref: TQ 326 115
+    lat: 50.88854
+    lon: -0.11493
+    km: 7.46
+    access: "Share the verge pull-in with the CP4 leader; keep the gate clear."
+
+road_crossings:              # every contact with a significant road (rule 23) and its marshal
+  - {road: Ditchling Road / Ditchling Bostall at the Beacon car park, grid_ref: TQ 333 129, lat: 50.90074, lon: -0.10461, km: 0.05, supervised_by: M1}
+  - {road: Ditchling Road at High Park Farm, grid_ref: TQ 326 115, lat: 50.88854, lon: -0.11493, km: 7.46, supervised_by: M2}
 
 safety:
-  - "**Supervised road crossings (rule 23):** Ditchling Road is crossed at the START (START leader) and at **CP4** (CP4 leader). It's fast: teams wait until the leader sees them across together."
+  - "**Supervised road crossings (rule 23):** Ditchling Road is crossed at the START (marshal **M1**) and at **CP4** (marshal **M2**). It's fast: teams wait until the marshal sees them across together."
   - "**Moon's Bottom (CP1/CP3)** is visited twice and teams leave by a different track each time. The leader there checks that each team heads the right way."
   - "**Bikes and horses:** the bridleways are busy at weekends. Walk to one side and give horses room."
   - "**Mud:** the woodland tracks in Stanmer Great Wood get very muddy in winter. Everyone needs boots."
@@ -187,7 +203,7 @@ emergency:
 
 team_card:
   safety:
-    - You will cross a busy road twice. A leader will be there each time. Stop, gather the whole team, and cross together when they tell you.
+    - You will cross a busy road twice. An adult will be there each time. Stop, gather the whole team, and cross together when they tell you.
     - Keep to one side of the track for bikes and horses.
     - Close every gate behind you.
     - Stay together. Never split the team.
@@ -233,7 +249,7 @@ risk_assessment:             # merged with ../risk-assessment.yaml into ditchlin
   next_review: null
   prewalk_date: null
   changes:
-    traffic: "Two significant road crossings, both at checkpoints and supervised by the START and CP4 leaders: see the crossings table and R1."
+    traffic: "Two significant road crossings, each with its own marshal (M1 at the START, M2 at CP4): see the crossings table and R1."
     lost: "Moon's Bottom (CP1/CP3) is visited twice and teams must leave by a different track each time: see R2."
     response: "CP1/CP3 has no vehicle access: see R3. Nearest A&E: Royal Sussex County Hospital, Brighton."
     weather: "Exposed ridge at Ditchling Beacon (248 m): colder and windier than in Brighton: see R4."
@@ -244,7 +260,7 @@ risk_assessment:             # merged with ../risk-assessment.yaml into ditchlin
     - hazard: "**Crossing Ditchling Road** at the START and at **CP4**: a fast road with limited visibility."
       who: All participants
       controls:
-        - "Both crossings are supervised by an adult (rule 23): the START leader at the Beacon car park and the CP4 leader at High Park Farm. Teams cross together only when the leader says so."
+        - "Each crossing has its own marshal (rule 23): **M1** at the Beacon car park and **M2** at High Park Farm. Teams cross together only when the marshal says so."
         - Place "caution walkers crossing" signs on both approaches at CP4.
         - CP4 leader parks in the verge pull-in clear of the gate and stands on the bridleway side, not the road.
     - hazard: "**Shared junction at Moon's Bottom** (CP1 and CP3): risk of a team leaving by the wrong track and walking a loop twice or missing Stanmer."

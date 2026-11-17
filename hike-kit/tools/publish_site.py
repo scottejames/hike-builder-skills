@@ -10,7 +10,8 @@ Usage (run in the workspace):
 The site is regenerated from the hike folders every time and never stored: each
 <workspace>/<slug>/ with a hike.yaml and a built leader pack becomes a page with the
 summary, checkpoint table, map and leg directions, plus links to the leader pack,
-team card, risk assessment, GPX and full-size map. The index lists every hike. Hikes without
+team card, risk assessment, staffing sheet, GPX and full-size map. The staffing
+sheet (<slug>_staffing.md, edited by hand) is also shown as a table on the page. The index lists every hike. Hikes without
 documents yet are skipped with a warning (run documentMyHike first).
 
 Hosting settings come from <workspace>/.env (never commit them):
@@ -27,6 +28,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from build_docs import md, gr, toilet_cp
+import staffing
 
 CSS = """
 body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#111;background:#fff;line-height:1.4}
@@ -51,10 +53,10 @@ def page(title, body, up=""):
             f'</body></html>\n')
 
 def outputs(hd, slug):
-    f = {k: f"{slug}{s}" for k, s in (("pack", "_leader_pack.pdf"), ("card", "_team_card.pdf"), ("gpx", ".gpx"), ("map", "_map.png"), ("ra", "_risk_assessment.pdf"))}
+    f = {k: f"{slug}{s}" for k, s in (("pack", "_leader_pack.pdf"), ("card", "_team_card.pdf"), ("gpx", ".gpx"), ("map", "_map.png"), ("ra", "_risk_assessment.pdf"), ("staff", "_staffing.md"))}
     return {k: v for k, v in f.items() if os.path.exists(os.path.join(hd, v))}
 
-def hike_page(h, slug, have):
+def hike_page(h, slug, have, hd):
     H, r, cps = h["hike"], h.get("route", {}), h["checkpoints"]
     tot = cps[-1]["km"]; tc = toilet_cp(h)
     facts = [H.get("area", ""), f"{tot:.1f} km ({tot/1.609344:.1f} miles) {H.get('type', 'circular')}", H.get("section", "")]
@@ -65,7 +67,7 @@ def hike_page(h, slug, have):
          f'<p class="sub">{" · ".join(x for x in facts if x)}</p>']
     if H.get("date"): o.append(f'<p><b>Date:</b> {html.escape(str(H["date"]))}</p>')
     if r.get("road_statement"): o.append(f'<p><b>Roads:</b> {md(r["road_statement"])}</p>')
-    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "ra": "Risk assessment (PDF)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
+    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "ra": "Risk assessment (PDF)", "staff": "Staffing sheet (Markdown)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
     o.append('<p class="dl">' + "".join(f'<a href="{have[k]}">{names[k]}</a>' for k in names if k in have) + "</p>")
 
     o.append('<h2>Checkpoints</h2><div class="wrap"><table><tr><th>CP</th><th>Grid ref</th><th>Location</th><th>Access for leaders</th><th>km</th></tr>')
@@ -77,6 +79,19 @@ def hike_page(h, slug, have):
     for n in h.get("leader_notes") or []:
         o.append(f'<div class="note"><b>{md(n["title"])}</b><ul>' + "".join(f"<li>{md(p)}</li>" for p in n.get("points", [])) + "</ul></div>")
     if r.get("verification"): o.append(f'<p class="verify"><b>Verification and pre-walk checks:</b> {md(r["verification"])}</p>')
+
+    if "staff" in have:
+        rows, header, notes = staffing.parse(os.path.join(hd, have["staff"]))
+        live = [x for x in rows.values() if not x.get("_removed")]
+        named = sum(1 for x in live if x.get("Name"))
+        cols = [c for c in staffing.COLS if c != "Notes" or any(x.get("Notes") for x in live)]
+        o.append(f'<h2>Staffing</h2><p class="sub">{len(live)} people needed, {named} named so far. '
+                 f'Edit <code>{have["staff"]}</code> in the hike folder and republish to update.</p><div class="wrap"><table>'
+                 + "<tr>" + "".join(f"<th>{c}</th>" for c in cols) + "</tr>"
+                 + "".join("<tr>" + "".join(f'<td>{gr(x.get(c, "")) if c == "Grid ref" and x.get(c) else md(x.get(c, ""))}</td>' for c in cols) + "</tr>" for x in live)
+                 + "</table></div>")
+        if notes.strip() and not notes.strip().startswith("(Anything else"):
+            o.append('<div class="note"><b>Planning notes</b>' + "".join(f"<p>{md(l)}</p>" for l in notes.strip().splitlines() if l.strip()) + "</div>")
 
     if "map" in have:
         o.append(f'<h2>Map</h2><a href="{have["map"]}"><img class="map" src="map.jpg" alt="Route map for {html.escape(H["name"])}"></a>')
@@ -109,14 +124,14 @@ def build(ws, out):
         if "map" in have:  # web-sized preview; the full PNG stays linked
             im = Image.open(os.path.join(hd, have["map"])).convert("RGB"); im.thumbnail((1600, 1600))
             im.save(os.path.join(d, "map.jpg"), quality=82)
-        open(os.path.join(d, "index.html"), "w").write(hike_page(h, slug, have))
+        open(os.path.join(d, "index.html"), "w").write(hike_page(h, slug, have, hd))
         H, cps = h["hike"], h["checkpoints"]; tot = cps[-1]["km"]
         rows.append(f'<tr><td><a href="{slug}/"><b>{html.escape(H["name"])}</b></a></td><td>{html.escape(H.get("area", ""))}</td>'
                     f'<td>{tot:.1f} km ({tot/1.609344:.1f} mi)</td><td>{html.escape(H.get("section", ""))}</td>'
                     f'<td>{html.escape(str(H.get("date") or "not set"))}</td><td>{gr(cps[0]["grid_ref"])}</td></tr>')
         n += 1; print(f"added {slug}")
     body = ('<h1>Scout hike routes</h1><p class="sub">Checkpoint routes for leaders. Each page has the checkpoints, map, '
-            'leg directions and the printable leader pack and team card.</p><div class="wrap"><table>'
+            'leg directions, staffing and the printable leader pack, team card and risk assessment.</p><div class="wrap"><table>'
             '<tr><th>Hike</th><th>Area</th><th>Distance</th><th>Section</th><th>Date</th><th>Start</th></tr>'
             + "".join(rows) + "</table></div>")
     open(os.path.join(out, "index.html"), "w").write(page("Scout hike routes", body))

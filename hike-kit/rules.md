@@ -41,9 +41,9 @@ section_defaults:
 
 ## Road crossings
 
-23. **MUST: every significant road crossing is supervised by an adult.** A significant road is any road in `significant_road_classes` (A roads, B roads and the main C roads), plus any other road you add after the pre-walk. Wherever the route crosses, joins or walks along one, an adult is there to see teams across: a checkpoint leader within `crossing_cover_m`, or a crossing marshal (M1, M2 …) placed at the crossing.
-    - `build_docs.py --check` finds every contact with a significant road from the map data. Each one needs a `road_crossings` entry saying who supervises it, or, where teams stay on a pavement and never cross, a `no_crossing` reason to confirm on the pre-walk.
-    - Prefer checkpoint positions that cover crossings, so the hike needs fewer marshals. Marshals get opening times, map markers and a leader note, like checkpoints.
+23. **MUST: every significant road crossing has its own crossing marshal.** A significant road is any road in `significant_road_classes` (A roads, B roads and the main C roads), plus any other road you add after the pre-walk. Wherever the route crosses, joins or walks along one, a dedicated adult marshal (M1, M2 …) stands within `crossing_cover_m` of the crossing and sees teams across. A checkpoint leader does not double up as the marshal, even when the crossing is at their checkpoint.
+    - `build_docs.py --check` finds every contact with a significant road from the map data. Each one needs a `road_crossings` entry naming its marshal, or, where teams stay on a pavement and never cross, a `no_crossing` reason to confirm on the pre-walk.
+    - Every marshal is one person on the staffing sheet, so prefer routes that cross fewer significant roads. Marshals get in-place times and map markers, like checkpoints.
     - The risk assessment lists every crossing and who supervises it.
 
 ## Checkpoints

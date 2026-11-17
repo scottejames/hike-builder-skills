@@ -125,3 +125,4 @@ outputs:
   team_card: true
   gpx: true
   map: true
+  staffing: true               # <slug>_staffing.md: who is needed where; you fill in names (kept on rebuild)

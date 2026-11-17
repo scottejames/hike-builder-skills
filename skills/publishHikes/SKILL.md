@@ -10,6 +10,7 @@ The site is rebuilt from scratch from the hike folders every time, so it always 
 ## 1. Check
 
 - Every hike to publish must have its documents built. A folder with `hike.yaml` but no leader pack is skipped; offer to run **/documentMyHike <slug>** for it first.
+- Each hike page shows its staffing sheet (`<slug>_staffing.md`) as a table and links the file, so names and mobiles the user has filled in go on the site. That's fine behind the password, but mention it when you report.
 - `.env` in the workspace must hold `HIKE_SITE_AMPLIFY_APP_ID` (and optionally `HIKE_SITE_BRANCH`, default `main`). If it's missing, do the one-off setup below.
 
 ## 2. Publish
@@ -21,6 +22,7 @@ To look before publishing, run `--out <scratchpad>/site` instead, and delete tha
 ## 3. Verify and report
 
 - With the credentials from `.env`, `curl -u USER:PASS <url>/` returns 200, and without them returns 401.
+- The hike pages show a Staffing section (grep for `<h2>Staffing` on one page).
 - Tell the user the URL and which hikes were added or skipped. Never print the password in chat unless the user asks for it; say it's in `.env` as `HIKE_SITE_PASSWORD`.
 
 ## One-off setup (only if there's no app yet)

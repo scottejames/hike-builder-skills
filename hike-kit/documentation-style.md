@@ -9,6 +9,7 @@ This file defines exactly what **documentMyHike** produces and how it's written.
 | `<slug>_leader_pack.pdf` | The leader pack, described below | 5 (4 without Street View; +1 when leg directions need 2 pages) |
 | `<slug>_team_card.pdf` | One card. Print one per team | 1 |
 | `<slug>_risk_assessment.pdf` | Event risk assessment: the group's base hazards plus this route's own risks (needs `risk-assessment.yaml` in the workspace) | 3–4, landscape |
+| `<slug>_staffing.md` | Staffing sheet: one row per person needed, with columns for names, mobiles and notes that the user fills in | – |
 | `<slug>.gpx` | Route track, checkpoints and turn points, for OS Maps import | – |
 | `<slug>_map.png` | Contour map with checkpoint and turn markers | – |
 | `streetview/` | 4 Street View images per checkpoint location (N, E, S, W) | – |
@@ -37,6 +38,18 @@ Each section must fit its pages. The build script shrinks the font, down to a 7.
 - **Event hazards:** every base hazard with who is at risk and its controls. The fourth column holds this route's notes (`changes.<hazard id>`), shaded yellow, pointing to the route risks.
 - **Route-specific risks:** numbered R1, R2 and so on: hazard, who is at risk, controls. Name the place, the leg and the checkpoint. Cover roads walked and crossed, water, railways, foot-only checkpoints, exposure, steep ground, livestock, distance, and anything on the pre-walk list that affects safety.
 - **Sign-off:** Leader in Charge, signature and date.
+
+## Staffing sheet (Markdown)
+
+Written by `tools/staffing.py` on every build (`outputs.staffing`, default true). One person per row:
+
+- **LIC** leader in charge, at the event base.
+- **BOOK** booking-in leader: runs the START, then books teams in at the finish.
+- **FIN** finish leader.
+- **CP1, CP2 …** one checkpoint leader per checkpoint. A shared checkpoint (e.g. CP1/CP3) is one row.
+- **M1, M2 …** one crossing marshal per significant road crossing (rule 23). A checkpoint leader never doubles as a marshal.
+
+Columns: ID · Role · Location · Grid ref · In place by · Until · Name · Mobile · Notes. Times match the leader pack's opening and closing times. The user edits Name, Mobile and Notes and writes under "## Planning notes". A rebuild keeps those (matched by ID); a role that disappears after a route change moves to "## Removed roles". Names filled in here appear in the leader pack's checkpoint log and on the website.
 
 ## Team card (1 page)
 
