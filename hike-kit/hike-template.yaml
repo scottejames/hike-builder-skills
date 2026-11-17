@@ -79,7 +79,14 @@ legs:                        # one per pair of consecutive checkpoints
       - {id: T1, grid_ref: TQ 000 000, lat: 0.0, lon: 0.0, km: 0.0, text: "Turn **RIGHT** ..."}   # T-points appear on the map
       - {id: CP1, grid_ref: TQ 000 000, km: 0.0, text: "Arrive at ..."}
 
-safety: []                   # leader pack; name each road crossing
+marshals: []                 # crossing marshals (rule 23), for significant crossings no checkpoint covers:
+#  - {id: M1, name: <road, place>, grid_ref: TQ 000 000, lat: 0.0, lon: 0.0, km: 0.0, access: "<where to park and walk from>"}
+
+road_crossings: []           # rule 23: one entry per significant road contact that build_docs --check finds
+#  - {road: <name and place>, grid_ref: TQ 000 000, lat: 0.0, lon: 0.0, km: 0.0, supervised_by: CP2}   # a checkpoint or marshal id within crossing_cover_m
+#  - {road: ..., grid_ref: ..., lat: ..., lon: ..., km: ..., no_crossing: "pavement on the same side throughout; check on the pre-walk"}
+
+safety: []                   # leader pack; name each road crossing and who supervises it
 kit: []                      # leader pack and team card
 
 emergency:
@@ -88,6 +95,19 @@ emergency:
 
 team_card:
   safety: []                 # in plain words for 10–14 year olds, with no place names
+
+risk_assessment:             # merged with <workspace>/risk-assessment.yaml into <slug>_risk_assessment.pdf
+  assessor: null             # null prints a blank to fill in by hand
+  date: null
+  next_review: null
+  prewalk_date: null
+  changes:                   # 4th column of the base hazards, keyed by hazard id
+    traffic: "<roads walked and crossed>: see R1."
+  route_risks:               # hazards unique to this route: R1, R2 ...
+    - hazard: "**<what and where>**: <the risk>"
+      who: All participants
+      controls:
+        - <control>
 
 streetview:
   enabled: false

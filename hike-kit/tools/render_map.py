@@ -80,7 +80,8 @@ def render(track, markers, out, pad=90, scale=2):
         if {"start", "finish"} <= g["kinds"]: lab = "S/F"
         elif all(l.startswith("CP") for l in labs) and len(labs) > 1: lab = "CP" + "/".join(l[2:] for l in labs)
         else: lab = "/".join(labs)
-        col = (30, 110, 40) if g["kinds"] & {"start", "finish"} else (230, 140, 0) if "toilet" in g["kinds"] else (20, 60, 140)
+        col = (30, 110, 40) if g["kinds"] & {"start", "finish"} else (230, 140, 0) if "toilet" in g["kinds"] \
+            else (120, 40, 160) if g["kinds"] == {"marshal"} else (20, 60, 140)
         w = 26 + len(lab)*17
         d.rounded_rectangle((cx-w/2, cy-26, cx+w/2, cy+26), radius=14, fill=col, outline="white", width=4)
         d.text((cx, cy), lab, fill="white", font=_font(FB, 28), anchor="mm")

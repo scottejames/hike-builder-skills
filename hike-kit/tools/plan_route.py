@@ -138,6 +138,35 @@ def route(osm_dir, points, pace=4.0):
                 surface_m={c: round(m) for c, m in tot.items()}, snaps=snaps,
                 _cum=cum, _cp_idx=cp_idx, _edges=edges, _nb=nb)
 
+SIGNIFICANT = ("trunk", "primary", "secondary", "tertiary")
+
+def road_contacts(r, classes=SIGNIFICANT, merge_m=150):
+    """Places where the route meets a significant road (OSM highway class in `classes`,
+    or its _link): it crosses it, joins it, or walks along it. Nearby touches of the
+    same road within merge_m are one contact. Returns a list of dicts:
+      road (name or class), cls, kind ('cross' or 'along'), along_m, km, lat, lon, gr
+    km/lat/lon is the point where the route first meets the road."""
+    full, cum, edges, nb = r["track"], r["_cum"], r["_edges"], r["_nb"]
+    sig = lambda lab: lab and lab.replace("_link", "") in classes
+    hits = []   # (index, road name, class, metres walked along it from here)
+    for i, n in enumerate(full):
+        nxt = edges.get((n, full[i+1])) if i + 1 < len(full) else None
+        along = hav(n, full[i+1]) if nxt and sig(nxt[1]) else 0
+        for m in nb.get(n, ()):
+            e = edges.get((n, m))
+            if e and sig(e[1]):
+                hits.append((i, e[2] or e[1], e[1].replace("_link", ""), along)); break
+    out = []
+    for i, name, c, along in hits:
+        k = cum[i]
+        if out and out[-1]["road"] == name and k - out[-1]["_end"] <= merge_m:
+            out[-1]["_end"] = k; out[-1]["along_m"] += along; continue
+        out.append(dict(road=name, cls=c, km=round(k/1000, 2), lat=full[i][0], lon=full[i][1],
+                        gr=gridref(*full[i]), along_m=along, _end=k))
+    for o in out:
+        o["along_m"] = round(o["along_m"]); o["kind"] = "along" if o["along_m"] > 60 else "cross"; o.pop("_end")
+    return out
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("osm_dir"); ap.add_argument("points")
@@ -196,6 +225,10 @@ def main():
             pathy = l["surface"].get("path", 0) + l["surface"].get("footpath", 0)
             if pathy > 0.4*l["km"]*1000: notes.append("mostly unsigned paths - harder to follow")
             print(f"  {l['frm']}->{l['to']}: {per_leg[k]} turns; " + ("; ".join(notes) if notes else "low risk"))
+        print("\nROAD CONTACTS (significant roads: rule 23 - every one needs an adult supervising the crossing)")
+        for x in road_contacts(r) or []:
+            print(f"  {x['km']:5.2f} km {x['kind']:<6} {x['road']} ({x['cls']}){'  walked ' + str(x['along_m']) + ' m' if x['along_m'] else ''}"
+                  f"  {x['gr']}  {x['lat']:.5f},{x['lon']:.5f}")
         for n, d1, d2 in revisits:
             ib = full.index(n)
             print(f"  REVISIT {gridref(*n)} at {d1/1000:.2f} km and {d2/1000:.2f} km - teams pass twice: "

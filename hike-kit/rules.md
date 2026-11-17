@@ -21,6 +21,8 @@ close_after_last_min: 15   # close this long after the slowest, last-starting te
 toilet_stop_min: {min: 0, max: 30}  # shortest / longest stop a team makes at the toilet CP
 distance_tolerance_pct: 10 # route length may differ from the request by this much
 osm_cache_max_age_days: 90 # re-fetch a hike's OpenStreetMap cache when older than this
+significant_road_classes: [trunk, primary, secondary, tertiary]  # OSM highway classes that count as a significant road (rule 23)
+crossing_cover_m: 100      # a checkpoint leader or marshal supervises a crossing only within this distance of it
 section_defaults:
   Scouts:    {planning_kmh: 4,   fastest_kmh: 5,   slowest_kmh: 3,   distance_km: [6, 12]}
   Cubs:      {planning_kmh: 3,   fastest_kmh: 4,   slowest_kmh: 2.5, distance_km: [4, 8]}
@@ -30,12 +32,19 @@ section_defaults:
 ## Route
 
 1. **MUST: toilet at halfway.** A checkpoint with toilets the teams can use falls inside `toilet_window_pct` of the total distance. Valid toilets are public toilets, a scout hut you have access to, or a café or pub you have confirmed will let teams use them. Record the source of the toilet in the checkpoint's `location`.
-2. **MUST: no walking along roads.** Teams walk on bridleways, byways, tracks and paths. Road crossings are allowed, and each one is named in the leg directions with "cross … together". The only on-road walking allowed is a short lane through a village or estate (up to about 500 m in total), and the summary states it.
+2. **MUST: no walking along roads.** Teams walk on bridleways, byways, tracks and paths. Road crossings are allowed, and each one is named in the leg directions with "cross … together". Significant road crossings also need an adult supervising (rule 23). The only on-road walking allowed is a short lane through a village or estate (up to about 500 m in total), and the summary states it.
 3. **SHOULD: prefer bridleways.** Aim for 70% or more of the distance on bridleway or byway. They are wider, better signed and easier to follow than footpaths.
 4. **SHOULD: obvious paths.** Choose the line with the fewest decision points. A main track with side paths is better than a web of small paths.
 5. **SHOULD: a circular route** that starts and finishes at the same place with parking, unless the brief asks for a linear route.
 6. **SHOULD: avoid repeating the same path.** Crossing your own route is fine.
 7. Distance stays within `distance_tolerance_pct` of the requested distance.
+
+## Road crossings
+
+23. **MUST: every significant road crossing is supervised by an adult.** A significant road is any road in `significant_road_classes` (A roads, B roads and the main C roads), plus any other road you add after the pre-walk. Wherever the route crosses, joins or walks along one, an adult is there to see teams across: a checkpoint leader within `crossing_cover_m`, or a crossing marshal (M1, M2 …) placed at the crossing.
+    - `build_docs.py --check` finds every contact with a significant road from the map data. Each one needs a `road_crossings` entry saying who supervises it, or, where teams stay on a pavement and never cross, a `no_crossing` reason to confirm on the pre-walk.
+    - Prefer checkpoint positions that cover crossings, so the hike needs fewer marshals. Marshals get opening times, map markers and a leader note, like checkpoints.
+    - The risk assessment lists every crossing and who supervises it.
 
 ## Checkpoints
 

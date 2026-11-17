@@ -162,8 +162,12 @@ legs:
       - {id: T9, grid_ref: TQ 329 123, lat: 50.89501, lon: -0.11151, km: 8.32, text: "Turn **RIGHT**, then follow the bridleway north up to the ridge."}
       - {id: T10, grid_ref: TQ 332 130, lat: 50.90164, lon: -0.10648, km: 9.27, text: "Turn **RIGHT** onto the South Downs Way. **FINISH** is about 150 m ahead."}
 
+road_crossings:              # every contact with a significant road (rule 23) and who supervises it
+  - {road: Ditchling Road / Ditchling Bostall at the Beacon car park, grid_ref: TQ 333 129, lat: 50.90074, lon: -0.10461, km: 0.05, supervised_by: START}
+  - {road: Ditchling Road at High Park Farm, grid_ref: TQ 326 115, lat: 50.88854, lon: -0.11493, km: 7.46, supervised_by: CP4}
+
 safety:
-  - "**Ditchling Road** is crossed at the START and at **CP4**. It's fast, so teams cross together under supervision."
+  - "**Supervised road crossings (rule 23):** Ditchling Road is crossed at the START (START leader) and at **CP4** (CP4 leader). It's fast: teams wait until the leader sees them across together."
   - "**Moon's Bottom (CP1/CP3)** is visited twice and teams leave by a different track each time. The leader there checks that each team heads the right way."
   - "**Bikes and horses:** the bridleways are busy at weekends. Walk to one side and give horses room."
   - "**Mud:** the woodland tracks in Stanmer Great Wood get very muddy in winter. Everyone needs boots."
@@ -183,7 +187,7 @@ emergency:
 
 team_card:
   safety:
-    - You will cross a busy road twice. Stop, gather the whole team, and cross together.
+    - You will cross a busy road twice. A leader will be there each time. Stop, gather the whole team, and cross together when they tell you.
     - Keep to one side of the track for bikes and horses.
     - Close every gate behind you.
     - Stay together. Never split the team.
@@ -222,3 +226,55 @@ outputs:
   team_card: true
   gpx: true
   map: true
+
+risk_assessment:             # merged with ../risk-assessment.yaml into ditchling-stanmer_risk_assessment.pdf
+  assessor: null
+  date: null
+  next_review: null
+  prewalk_date: null
+  changes:
+    traffic: "Two significant road crossings, both at checkpoints and supervised by the START and CP4 leaders: see the crossings table and R1."
+    lost: "Moon's Bottom (CP1/CP3) is visited twice and teams must leave by a different track each time: see R2."
+    response: "CP1/CP3 has no vehicle access: see R3. Nearest A&E: Royal Sussex County Hospital, Brighton."
+    weather: "Exposed ridge at Ditchling Beacon (248 m): colder and windier than in Brighton: see R4."
+    slips: "Steep chalk descents and climbs (about 150 m) and very muddy woodland tracks in Stanmer Great Wood: see R5."
+    countryside: "Grazing livestock on the downs: see R7."
+    coverage: "Mobile signal in the Moon's Bottom valley is unconfirmed: check on the pre-walk."
+  route_risks:
+    - hazard: "**Crossing Ditchling Road** at the START and at **CP4**: a fast road with limited visibility."
+      who: All participants
+      controls:
+        - "Both crossings are supervised by an adult (rule 23): the START leader at the Beacon car park and the CP4 leader at High Park Farm. Teams cross together only when the leader says so."
+        - Place "caution walkers crossing" signs on both approaches at CP4.
+        - CP4 leader parks in the verge pull-in clear of the gate and stands on the bridleway side, not the road.
+    - hazard: "**Shared junction at Moon's Bottom** (CP1 and CP3): risk of a team leaving by the wrong track and walking a loop twice or missing Stanmer."
+      who: All participants
+      controls:
+        - One leader covers both visits and checks each team's direction (see the leader note in the leader pack).
+        - Teams are given a different next grid reference on each visit.
+    - hazard: "**Foot-only checkpoint** at Moon's Bottom (CP1/CP3): no vehicle access for a casualty or a team withdrawing."
+      who: All participants and the CP1/CP3 leader
+      controls:
+        - The leader walks in from Stanmer (about 20 min) and carries a first aid kit, a phone and the vehicle access points.
+        - Evacuation is down the main track to Stanmer village (CP2), where a vehicle can meet the casualty.
+        - Check mobile signal at Moon's Bottom on the pre-walk.
+    - hazard: "**Exposure on the South Downs ridge**: wind chill and rain with little shelter, especially at the start and finish."
+      who: All participants
+      controls:
+        - Leader in Charge checks the mountain-and-hill style forecast for the ridge, not just Brighton.
+        - Teams wear or carry warm layers, hat and gloves; check kit at the start.
+        - Stanmer village (CP2) is the bad-weather withdrawal point.
+    - hazard: "**Steep slopes and mud**: chalk descents into the valley and the climb back to the ridge; very muddy tracks in Stanmer Great Wood in winter."
+      who: All participants
+      controls:
+        - Walking boots compulsory; teams slow down on the descents.
+        - Allow extra time for the climb from CP2 back up to the finish.
+    - hazard: "**Bikes and horses** on busy bridleways and the South Downs Way, including fast downhill mountain bikes."
+      who: All participants
+      controls:
+        - Teams walk to one side in single file and step aside for bikes and horses.
+        - Give horses plenty of room and speak to the rider when passing.
+    - hazard: "**Livestock** grazing on the downs."
+      who: All participants
+      controls:
+        - Teams keep calm, quiet and together, close gates, and walk round herds.

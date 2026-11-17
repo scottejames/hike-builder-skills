@@ -19,6 +19,8 @@ Run `python3 hike-kit/tools/build_docs.py <slug> --check`.
 
 - **ERRORs:** fix them in `hike.yaml`. A grid ref mismatch means the coordinates or the ref are wrong, so recompute with `hike-kit/tools/osgb.py`. The route line is never stored: `build_docs.py` re-routes from `route.routing_points` on the `.osm/` cache every run, and refreshes the cache when it's stale or missing. If the check reports that a checkpoint's km has changed, the OSM data or the routing points changed. Rerun `plan_route.py --junctions`, review the line with the user, and update the km and directions in `hike.yaml`. Use `--refresh-osm` to force a fresh download.
 - **MUST breaches** that aren't in `brief.exceptions`: stop and ask the user.
+- **Road crossings (rule 23):** `--check` fails for any significant road contact without a `road_crossings` entry, or whose supervisor is too far away. Fix it by covering the crossing with a checkpoint or adding a marshal, and ask the user if it changes the route or staffing. Make sure the RA's traffic notes and route risks name who supervises each crossing.
+- **Risk assessment:** if the workspace has `risk-assessment.yaml`, the hike needs a `risk_assessment:` section (see `hike-kit/hike-template.yaml`). Review the route for hazards unique to it: roads walked and crossed, rivers and ponds, railways, foot-only or shared checkpoints, exposed or steep ground, mud and flooding, livestock, bikes and horses, long distance, busy checkpoint sites, and anything on the pre-walk list that affects safety. Write each one as a `route_risks` entry naming the place, and point the matching base hazard to it with `changes.<id>`. Leave assessor and dates null unless the user gives them.
 - **Wording review:** read every text field against the wording rules: verbs first, **CAPS** turn words, "Cross … together", "**On foot only:**", "check on the day" for anything unverified, and British English. Fix the YAML where needed.
 
 ## 3. Street View, only if `streetview.enabled` is true
@@ -48,6 +50,7 @@ Render the pages with `pdftoppm -r 70 -png <pdf> <scratchpad>/pg`, then Read eac
 - **Page 4:** opening times present, with closing times when `teams.count` is set; the checkpoint log.
 - **Page 5:** four images per location, each with date and source.
 - **Team card:** the start grid ref only; numbered rows with no checkpoint names; 1 page.
+- **Risk assessment:** landscape; header boxes; route notes shaded in the 4th column; every route risk numbered R1, R2 …; sign-off box.
 - **Everywhere:** grid refs in bold monospace and never wrapped.
 
 Fix any problem through the YAML, or in `build_docs.py` if it's a layout bug, and rebuild.

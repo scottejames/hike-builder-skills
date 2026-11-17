@@ -47,6 +47,7 @@ Write the answers into a draft `brief` right away, so a crash loses nothing: `<s
    - bridleway share under 70% (rule 3)
    - a leg over the hard maximum (rule 10)
    - a snapping WARNING
+   - ROAD CONTACTS (rule 23, MUST): every significant road contact needs an adult supervising it. Put a checkpoint at the crossing where you can; otherwise it needs a crossing marshal. Prefer routes and checkpoint positions that need the fewest marshals, and say in the candidate how many marshals the route needs.
    - LOST-RISK flags (rule 11). A REVISIT junction is a strong via-checkpoint candidate. It may be on foot only and shared, like Moon's Bottom (CP1/CP3) in the example.
 5. Cross-check at least one leg with osm-nic `route` (profile foot). Note any difference above about 10%.
 6. For each vehicle-access checkpoint, call refconv `streetview_coverage`. It's free, and it shows whether a photo exists and how old it is.
@@ -76,8 +77,10 @@ Follow `hike-kit/hike-template.yaml`, with `hike-kit/examples/ditchling-stanmer.
   - Copy each turn's lat/lon and grid ref exactly from that output.
   - Start each instruction with a verb, put turn and compass words in **CAPS**, and name what teams will see.
   - Write each road crossing as "**Cross <road> together**".
+- **Road crossings (rule 23):** add one `road_crossings` entry per ROAD CONTACT, with `supervised_by` set to the checkpoint within `crossing_cover_m` or a marshal. Add a `marshals` entry (id M1, M2 …, lat/lon/km from the route, grid ref from `osgb.py`, where to park) for each crossing no checkpoint covers. Name the supervisor in the crossing's direction row.
 - **Leader notes:** add one entry per shared or foot-only checkpoint. For shared checkpoints, say how to tell the visits apart by arrival direction, and which grid ref to give.
 - **Other sections:** fill in safety (name every road crossing), kit, emergency (nearest A&E), team-card safety in plain words, and `route.verification`. Mark anything unverified "check on the day".
+- **Risk assessment:** add a `risk_assessment:` section with this route's own hazards in `route_risks` (roads, water, railways, foot-only checkpoints, exposure, livestock and so on) and route notes in `changes`. documentMyHike reviews it again.
 - **Street View:** set `streetview.enabled` from the brief. If it's enabled, add one `locations` entry per distinct place, with `prefix` set and `date`/`source` left blank for documentMyHike to fill in.
 
 ## 6. Validate and hand over

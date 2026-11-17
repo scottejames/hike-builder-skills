@@ -10,7 +10,7 @@ Usage (run in the workspace):
 The site is regenerated from the hike folders every time and never stored: each
 <workspace>/<slug>/ with a hike.yaml and a built leader pack becomes a page with the
 summary, checkpoint table, map and leg directions, plus links to the leader pack,
-team card, GPX and full-size map. The index lists every hike. Hikes without
+team card, risk assessment, GPX and full-size map. The index lists every hike. Hikes without
 documents yet are skipped with a warning (run documentMyHike first).
 
 Hosting settings come from <workspace>/.env (never commit them):
@@ -51,7 +51,7 @@ def page(title, body, up=""):
             f'</body></html>\n')
 
 def outputs(hd, slug):
-    f = {k: f"{slug}{s}" for k, s in (("pack", "_leader_pack.pdf"), ("card", "_team_card.pdf"), ("gpx", ".gpx"), ("map", "_map.png"))}
+    f = {k: f"{slug}{s}" for k, s in (("pack", "_leader_pack.pdf"), ("card", "_team_card.pdf"), ("gpx", ".gpx"), ("map", "_map.png"), ("ra", "_risk_assessment.pdf"))}
     return {k: v for k, v in f.items() if os.path.exists(os.path.join(hd, v))}
 
 def hike_page(h, slug, have):
@@ -65,7 +65,7 @@ def hike_page(h, slug, have):
          f'<p class="sub">{" · ".join(x for x in facts if x)}</p>']
     if H.get("date"): o.append(f'<p><b>Date:</b> {html.escape(str(H["date"]))}</p>')
     if r.get("road_statement"): o.append(f'<p><b>Roads:</b> {md(r["road_statement"])}</p>')
-    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
+    names = {"pack": "Leader pack (PDF)", "card": "Team card (PDF)", "ra": "Risk assessment (PDF)", "gpx": "GPX for OS Maps", "map": "Full-size map"}
     o.append('<p class="dl">' + "".join(f'<a href="{have[k]}">{names[k]}</a>' for k in names if k in have) + "</p>")
 
     o.append('<h2>Checkpoints</h2><div class="wrap"><table><tr><th>CP</th><th>Grid ref</th><th>Location</th><th>Access for leaders</th><th>km</th></tr>')

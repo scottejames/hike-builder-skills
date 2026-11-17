@@ -30,7 +30,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import render_map
 from build_docs import fit, map_page, md, gr, pages
 from osgb import gridref
-from plan_route import route
+from plan_route import route, road_contacts, hav
+from build_docs import load_settings
 
 ICON = {"vehicle": "Vehicle", "foot": "On foot only", "unknown": "Unconfirmed"}
 
@@ -60,6 +61,13 @@ def main():
     stats = [f'{T/1000:.1f} km ({T/1609.34:.1f} miles)', f'{100*surf.get("bridleway", 0)/T:.0f}% bridleway',
              f'{road:.0f} m on lanes/roads']
     if tc: stats.append(f'toilets at {tc["id"]} ({100*tcp[tc["id"]]["km"]*1000/T:.0f}% of the way)')
+    S = load_settings(); cover = S.get("crossing_cover_m", 100)
+    xing = []   # rule 23: every significant road contact needs an adult supervising it
+    for x in road_contacts(t, tuple(S.get("significant_road_classes") or ("trunk", "primary", "secondary", "tertiary"))):
+        near = min(tcp.values(), key=lambda p: hav((p["lat"], p["lon"]), (x["lat"], x["lon"])))
+        d = hav((near["lat"], near["lon"]), (x["lat"], x["lon"]))
+        who = f'{near["label"]} leader ({d:.0f} m)' if d <= cover else f'**needs a marshal** (nearest checkpoint {near["label"]}, {d:.0f} m)'
+        xing.append(f'{x["road"]} at {x["km"]:.1f} km, {x["gr"]}' + (f' (walked {x["along_m"]} m)' if x["along_m"] else "") + f": {who}")
     def lst(title, items, colour):
         if not items: return ""
         return (f'<table width="100%" border="1" cellspacing="0" cellpadding="4" style="margin-top:2mm"><tr><td bgcolor="{colour}">'
@@ -73,6 +81,7 @@ def main():
         + "".join(rows) + "</table>",
         f'<p class="small">Leg times at {pace:g} km/h, no stops. The map is on page 2.</p>',
         lst("Rule breaches (need your OK)", c.get("rule_breaches"), "#fde8e8"),
+        lst("Significant road crossings: each needs an adult supervising it (rule 23)", xing, "#efe6f7"),
         lst("Where teams could go wrong", c.get("lost_risk"), "#e8f0fb"),
         lst("Pre-walk checks (for you to confirm on the pre-walk)", c.get("prewalk_checks"), "#fff7ed"),
         lst("Options you could ask for", c.get("options"), "#eeeeee"),

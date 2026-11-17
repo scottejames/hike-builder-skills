@@ -14,7 +14,8 @@ cache, it is refreshed once and retried.
          files present); exit code 1 on errors.
 
 Writes into HIKE_DIR (see hike-kit/documentation-style.md):
-  <slug>_leader_pack.pdf, <slug>_team_card.pdf,
+  <slug>_leader_pack.pdf, <slug>_team_card.pdf, <slug>_risk_assessment.pdf (when the
+  workspace has risk-assessment.yaml; see risk_assessment.py),
   <slug>.gpx, <slug>_map.png
 
 PDF pipeline (LibreOffice lessons): text pages are separate HTML files that
@@ -34,7 +35,7 @@ KIT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from osgb import gridref
 import render_map
-from plan_route import route as do_route, NoPath
+from plan_route import route as do_route, NoPath, road_contacts, hav
 import osm_fetch
 
 GR_RE = re.compile(r"^[A-Z]{2} \d{3} \d{3}$")
@@ -63,6 +64,8 @@ def merged(h, s):
         close_after=ct.get("close_after_last_min", s.get("close_after_last_min", 15)),
         stop=teams.get("toilet_stop_min") or s.get("toilet_stop_min", {"min": 0, "max": 30}),
         teams=teams,
+        sig_classes=tuple(s.get("significant_road_classes") or ("trunk", "primary", "secondary", "tertiary")),
+        cover_m=s.get("crossing_cover_m", 100),
     )
 
 # ---------------------------------------------------------------- helpers
@@ -119,6 +122,54 @@ def timings(h, E):
                 first["close"] = max(a["close"], b["close"])
                 second["close_shared"] = first["id"]
     return rows
+
+def marshal_timings(h, E):
+    """Opening/closing rows for crossing marshals, timed like a checkpoint at the marshal's km."""
+    P = E["pace"]; tc = toilet_cp(h); tkm = tc["km"] if tc else None
+    teams = E["teams"]; count = teams.get("count"); iv = teams.get("start_interval_min") or 0
+    rows = []
+    for m in h.get("marshals") or []:
+        after = tkm is not None and m["km"] > tkm + 1e-6
+        earliest = math.floor(m["km"]*60/P["fastest_kmh"]) + (E["stop"]["min"] if after else 0)
+        r = dict(id=m["id"], km=m["km"], earliest=earliest, open=earliest - E["open_before"],
+                 planned=round(m["km"]/P["planning_kmh"]*60) + (E["stop"]["min"] if after else 0), marshal=True)
+        if count:
+            latest = (count-1)*iv + math.ceil(m["km"]*60/P["slowest_kmh"]) + (E["stop"]["max"] if after else 0)
+            r.update(latest=latest, close=latest + E["close_after"])
+        rows.append(r)
+    return rows
+
+def check_crossings(h, E, R):
+    """Rule 23: every contact with a significant road has an adult supervising it."""
+    err, warn = [], []
+    track, cum = R["track"], R["_cum"]
+    M = {m["id"]: m for m in h.get("marshals") or []}
+    sup = {**{c["id"]: c for c in h["checkpoints"]}, **M}
+    for m in M.values():
+        if not GR_RE.match(m.get("grid_ref", "")) or gridref(m["lat"], m["lon"]) != m["grid_ref"]:
+            err.append(f"marshal {m['id']}: grid_ref missing or does not match its coordinates")
+        i = min(range(len(track)), key=lambda j: hav(track[j], (m["lat"], m["lon"])))
+        if hav(track[i], (m["lat"], m["lon"])) > 60: err.append(f"marshal {m['id']}: not on the route")
+        elif abs(cum[i]/1000 - m["km"]) > 0.1: err.append(f"marshal {m['id']}: km {m['km']} but the route gives {cum[i]/1000:.2f}")
+    entries = h.get("road_crossings") or []; used = set()
+    for x in road_contacts(R, E["sig_classes"]):
+        span = 150 + x["along_m"]
+        hit = [k for k, e in enumerate(entries) if "lat" in e and hav((e["lat"], e["lon"]), (x["lat"], x["lon"])) <= span]
+        where = f"{x['road']} at {x['km']:.2f} km ({x['gr']})"
+        if not hit:
+            msg = f"MUST: no supervision recorded for the significant road contact {where} (rule 23) - add a road_crossings entry"
+            (warn if _excepted(h, "crossing") else err).append(msg); continue
+        used.update(hit)
+    for k, e in enumerate(entries):
+        lab = f"road_crossings: {e.get('road', '?')} {e.get('grid_ref', '')}"
+        if "lat" in e and gridref(e["lat"], e["lon"]) != e.get("grid_ref"): err.append(f"{lab}: grid_ref does not match its coordinates")
+        if e.get("no_crossing"): continue
+        s_ = e.get("supervised_by")
+        if s_ not in sup: err.append(f"{lab}: supervised_by '{s_}' is not a checkpoint or marshal id"); continue
+        d = hav((sup[s_]["lat"], sup[s_]["lon"]), (e["lat"], e["lon"]))
+        if d > E["cover_m"]: err.append(f"{lab}: {s_} is {d:.0f} m away, more than crossing_cover_m {E['cover_m']} m (rule 23)")
+        if k not in used and not e.get("manual"): warn.append(f"{lab}: not found on the route (stale?) - set manual: true if you added it by hand")
+    return err, warn
 
 # ---------------------------------------------------------------- checks
 def get_route(h, hd, E, settings, refresh=False):
@@ -207,6 +258,7 @@ def check(h, hd, E, R):
     for c in cps:
         if (c.get("shared_with") or not c.get("vehicle_access")) and c["id"] not in ("START", "FINISH"):
             if not h.get("leader_notes"): warn.append(f"{c['id']}: shared/foot-only checkpoint but no leader_notes")
+    e2, w2 = check_crossings(h, E, R); err += e2; warn += w2
     return err, warn
 
 def _excepted(h, key):
@@ -283,6 +335,20 @@ def page_checkpoints(h, E, T, warns):
         pts = "".join(f"<li>{md(p)}</li>" for p in n.get("points", []))
         o.append(f'<table width="100%" border="1" cellspacing="0" cellpadding="4" style="margin-top:2mm"><tr><td class="mb" bgcolor="#e8f0fb">'
                  f'<b>{md(n["title"])}</b><ul>{pts}</ul></td></tr></table>')
+    xs = h.get("road_crossings") or []
+    if xs:
+        Mt = {r["id"]: r for r in marshal_timings(h, E)}; M = {m["id"]: m for m in h.get("marshals") or []}
+        rows = []
+        for x in xs:
+            s_ = x.get("supervised_by")
+            who = (f'<b>{s_}</b> marshal' if s_ in M else f'<b>{s_}</b> leader') if s_ else "no crossing"
+            when = f'in place by <b>{hm(Mt[s_]["open"])}</b>' if s_ in Mt else ""
+            extra = md(M[s_].get("access", "")) if s_ in M else md(x.get("no_crossing") or x.get("note", ""))
+            rows.append(f'<tr><td>{md(x["road"])}</td><td>{gr(x["grid_ref"])}</td><td>{x["km"]:.1f}</td><td>{who}</td><td>{when}</td><td>{extra}</td></tr>')
+        o.append(cellp('<table width="100%" border="1" cellspacing="0" cellpadding="3" style="margin-top:2mm">'
+                       '<tr><td colspan="6" class="mb" bgcolor="#efe6f7"><b>Significant road crossings (rule 23): an adult sees every team across.</b></td></tr>'
+                       '<tr><th>Road</th><th>Grid ref</th><th>km</th><th>Supervised by</th><th>Marshal timing</th><th>Marshal access / note</th></tr>'
+                       + "".join(rows) + "</table>"))
     ver = [md(h["route"].get("verification", ""))]
     exc = (h.get("brief") or {}).get("exceptions") or []
     if exc: ver.append("<b>Accepted exceptions to the planning rules:</b> " + "; ".join(md(e) for e in exc) + ".")
@@ -322,10 +388,12 @@ def page_safety(h, E, T):
     R.append(f'<tr><th width="24%">CP</th><th>Open by (−{E["open_before"]} min)</th><th>Earliest arrival ({P["fastest_kmh"]:g} km/h)</th>'
              f'<th>Plan ({P["planning_kmh"]:g} km/h)</th>' + (f'<th>Close (+{E["close_after"]} min)</th>' if has_close else "")
              + ('<th width="15%">Clock time to open</th>' if not start else "") + "</tr>")
-    for r in T[1:]:
-        c = C[r["id"]]
+    Mn = {m["id"]: m for m in h.get("marshals") or []}
+    for r in sorted(T[1:] + marshal_timings(h, E), key=lambda r: r["km"]):
+        c = Mn[r["id"]] if r.get("marshal") else C[r["id"]]
         op = f'(already open as {r["open_shared"]})' if r.get("open_shared") else f'<b>{hm(r["open"], start)}</b>'
-        row = f'<tr><td>{r["id"]} {html.escape(short(c))}</td><td>{op}</td><td>{hm(r["earliest"], start)}</td><td>{hm(r["planned"], start)}</td>'
+        nm = f'{r["id"]} marshal: {html.escape(short(c))}' if r.get("marshal") else f'{r["id"]} {html.escape(short(c))}'
+        row = f'<tr><td>{nm}</td><td>{op}</td><td>{hm(r["earliest"], start)}</td><td>{hm(r["planned"], start)}</td>'
         if has_close: row += f'<td>{"(as " + r["close_shared"] + ")" if r.get("close_shared") else "<b>" + hm(r["close"], start) + "</b>"}</td>'
         if not start: row += "<td></td>"
         R.append(row + "</tr>")
@@ -338,6 +406,7 @@ def page_safety(h, E, T):
                     f'{P["slowest_kmh"]:g} km/h' + (f' with a {E["stop"]["max"]} min stop at {tc["id"]}.' if tc else "."))
     else:
         expl.append("Set <b>teams.count</b> in hike.yaml to get closing times.")
+    if Mn: expl.append("Marshals (M) time their arrival like a checkpoint opening.")
     for c in h["checkpoints"]:
         if c.get("walk_in_min"):
             r = next(x for x in T if x["id"] == c["id"])
@@ -474,6 +543,8 @@ def markers(h):
     for c in h["checkpoints"]:
         kind = "start" if c["id"] == "START" else "finish" if c["id"] == "FINISH" else "toilet" if c.get("toilets") else "cp"
         ms.append(dict(label=c["id"], lat=c["lat"], lon=c["lon"], kind=kind))
+    for m in h.get("marshals") or []:
+        ms.append(dict(label=m["id"], lat=m["lat"], lon=m["lon"], kind="marshal"))
     for l in h["legs"]:
         for d in l["directions"]:
             if d["id"].startswith("T") and "lat" in d:
@@ -489,6 +560,7 @@ def map_caption(h):
         seen.update(ids)
         lab = "S/F" if ids == ["START", "FINISH"] else "/".join(ids)
         bits.append(f"{lab} {short(c)} {c['grid_ref']}" + (" (toilets)" if c.get("toilets") else ""))
+    for m in h.get("marshals") or []: bits.append(f"{m['id']} crossing marshal {short(m)} {m['grid_ref']}")
     turns = [d["id"] for l in h["legs"] for d in l["directions"] if d["id"].startswith("T") and "lat" in d]
     if turns: bits.append(f"{turns[0]}–{turns[-1]} turn points (see leg directions)")
     return "Route in red, arrows show direction. " + " · ".join(bits) + "."
@@ -501,6 +573,8 @@ def gpx(h, track, out):
         seen.add(c["grid_ref"])
         ids = [x["id"] for x in h["checkpoints"] if x["grid_ref"] == c["grid_ref"]]
         w.append(f'<wpt lat="{c["lat"]:.6f}" lon="{c["lon"]:.6f}"><name>{e("/".join(ids))} {e(short(c))}</name><desc>{e(c["grid_ref"])}</desc></wpt>')
+    for m in h.get("marshals") or []:
+        w.append(f'<wpt lat="{m["lat"]:.6f}" lon="{m["lon"]:.6f}"><name>{e(m["id"])} marshal {e(short(m))}</name><desc>{e(m["grid_ref"])}</desc></wpt>')
     for l in h["legs"]:
         for d in l["directions"]:
             if d["id"].startswith("T") and "lat" in d:
@@ -518,6 +592,8 @@ def main():
     h = yaml.safe_load(open(os.path.join(hd, "hike.yaml"))); S = load_settings(); E = merged(h, S)
     R = get_route(h, hd, E, S, a.refresh_osm)
     err, warn = check(h, hd, E, R)
+    import risk_assessment as RA  # imported here: it imports this module
+    ra_base = RA.load_base(hd); e2, w2 = RA.check(h, ra_base); err += e2; warn += w2
     for x in err: print("ERROR:", x)
     for x in warn: print("WARN: ", x)
     T = timings(h, E)
@@ -559,6 +635,9 @@ def main():
             pdf, fs, ok = fit("team_card", f"{h['hike']['name']}: Team card", team_card(h, E), 1, tmp, sizes=(11, 10.4, 9.8, 9.4, 9.0, 8.6))
             out = os.path.join(hd, f"{slug}_team_card.pdf"); shutil.copy(pdf, out)
             print("wrote", out, f"({fs}pt)")
+        if O.get("risk_assessment", True) and ra_base is not None:
+            out = os.path.join(hd, f"{slug}_risk_assessment.pdf")
+            print("wrote", out, f"({RA.build(h, hd, out, ra_base)} pages)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     if not O.get("map", True): os.remove(map_png)
