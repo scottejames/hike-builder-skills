@@ -62,12 +62,15 @@ def main():
              f'{road:.0f} m on lanes/roads']
     if tc: stats.append(f'toilets at {tc["id"]} ({100*tcp[tc["id"]]["km"]*1000/T:.0f}% of the way)')
     S = load_settings(); cover = S.get("crossing_cover_m", 100)
-    xing = []   # rule 23: every significant road contact needs an adult supervising it
+    xing, posts = [], []   # rule 23: every significant road contact has its own crossing marshal (never a CP leader)
     for x in road_contacts(t, tuple(S.get("significant_road_classes") or ("trunk", "primary", "secondary", "tertiary"))):
-        near = min(tcp.values(), key=lambda p: hav((p["lat"], p["lon"]), (x["lat"], x["lon"])))
-        d = hav((near["lat"], near["lon"]), (x["lat"], x["lon"]))
-        who = f'{near["label"]} leader ({d:.0f} m)' if d <= cover else f'**needs a marshal** (nearest checkpoint {near["label"]}, {d:.0f} m)'
-        xing.append(f'{x["road"]} at {x["km"]:.1f} km, {x["gr"]}' + (f' (walked {x["along_m"]} m)' if x["along_m"] else "") + f": {who}")
+        here = (x["lat"], x["lon"])
+        m = next((i for i, p in enumerate(posts) if hav(p, here) <= cover), None)   # one marshal can stand for contacts this close
+        if m is None: posts.append(here); m = len(posts) - 1
+        near = min(tcp.values(), key=lambda p: hav((p["lat"], p["lon"]), here))
+        at = f', at {near["label"]}' if hav((near["lat"], near["lon"]), here) <= cover else ""
+        xing.append(f'{x["road"]} at {x["km"]:.1f} km, {x["gr"]}' + (f' (walked {x["along_m"]} m)' if x["along_m"] else "") + f": marshal **M{m+1}**{at}")
+    if posts: xing.append(f"**{len(posts)} crossing marshal{'s' if len(posts) != 1 else ''} needed** (a checkpoint leader never doubles as one).")
     def lst(title, items, colour):
         if not items: return ""
         return (f'<table width="100%" border="1" cellspacing="0" cellpadding="4" style="margin-top:2mm"><tr><td bgcolor="{colour}">'

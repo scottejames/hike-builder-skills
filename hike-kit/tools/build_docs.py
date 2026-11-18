@@ -348,7 +348,7 @@ def page_checkpoints(h, E, T, warns):
             rows.append(f'<tr><td>{md(x["road"])}</td><td>{gr(x["grid_ref"])}</td><td>{x["km"]:.1f}</td><td>{who}</td><td>{when}</td><td>{extra}</td></tr>')
         o.append(cellp('<table width="100%" border="1" cellspacing="0" cellpadding="3" style="margin-top:2mm">'
                        '<tr><td colspan="6" class="mb" bgcolor="#efe6f7"><b>Significant road crossings (rule 23): an adult sees every team across.</b></td></tr>'
-                       '<tr><th>Road</th><th>Grid ref</th><th>km</th><th>Supervised by</th><th>Marshal timing</th><th>Marshal access / note</th></tr>'
+                       '<tr><th width="21%">Road</th><th width="12%">Grid ref</th><th width="5%">km</th><th width="11%">Supervised by</th><th width="12%">Marshal timing</th><th>Marshal access / note</th></tr>'
                        + "".join(rows) + "</table>"))
     ver = [md(h["route"].get("verification", ""))]
     exc = (h.get("brief") or {}).get("exceptions") or []
@@ -525,13 +525,25 @@ def streetview_pages(h, hd, out_prefix):
         d.line((M, M+48, A4[0]-M, M+48), fill=GREEN, width=3)
         d.text((M, M+58), "Dates vary, so vegetation, parking and signs may have changed. Each row looks N, E, S and W.",
                fill=(70, 70, 70), font=_f(FR, 20))
-        y = M + 100; w = (A4[0]-2*M-3*12)//4
-        for loc in locs[k:k+per]:
+        y = M + 100; fm = _f(FR, 19); tw = A4[0] - 2*M
+        def lines(t):   # wrap a caption to the page width (2 lines at most, then trim)
+            out, cur = [], ""
+            for wd in t.split():
+                if d.textlength((cur + " " + wd).strip(), font=fm) <= tw: cur = (cur + " " + wd).strip()
+                else: out.append(cur); cur = wd
+            out.append(cur)
+            if len(out) > 2: out = out[:2]; out[1] = out[1].rstrip(" ,;") + "…"
+            return out
+        page = locs[k:k+per]
+        metas = [lines(f"{l.get('date', '')} · {l.get('source', '')}" + (f" · {l['caption']}" if l.get("caption") else "")) for l in page]
+        over = sum(38 + 22*len(m) + 22 for m in metas)   # title, caption lines and the gap below each row
+        w = min((A4[0]-2*M-3*12)//4, (A4[1] - M - y - over)//len(page))   # square images; shrink so every row fits
+        for loc, meta in zip(page, metas):
             c0 = C[loc["checkpoints"][0]]
             ttl = f"{' / '.join(loc['checkpoints'])} – {short(c0)} – {c0['grid_ref']}"
             d.text((M, y), ttl, fill="black", font=_f(FB, 24))
-            meta = f"{loc.get('date', '')} · {loc.get('source', '')}" + (f" · {loc['caption']}" if loc.get("caption") else "")
-            d.text((M, y+30), meta, fill=(70, 70, 70), font=_f(FR, 19)); y += 60
+            for i, ln in enumerate(meta): d.text((M, y+30+22*i), ln, fill=(70, 70, 70), font=fm)
+            y += 38 + 22*len(meta)
             hh = 0
             for j, hd_ in enumerate(("000", "090", "180", "270")):
                 im = Image.open(os.path.join(idir, f"{loc['prefix']}_h{hd_}.jpg")).convert("RGB")

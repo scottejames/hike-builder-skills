@@ -100,7 +100,7 @@ def body(h, base):
     o.append("<h2>Significant road crossings: every one supervised by an adult</h2>")
     if xs:
         o.append('<p style="margin:0 0 1mm 0">Every place the route meets an A, B or main C road was found from OpenStreetMap and is listed here. '
-                 'An adult sees every team across: the checkpoint leader where the crossing is at a checkpoint, otherwise a crossing marshal in Hi-Vis.</p>'
+                 'A dedicated crossing marshal in Hi-Vis sees every team across; checkpoint leaders never double up as marshals.</p>'
                  '<table width="100%" border="1" cellspacing="0" cellpadding="3"><tr><th width="28%">Road</th><th width="9%">Grid ref</th>'
                  '<th width="5%">km</th><th width="22%">Supervised by</th><th>Notes</th></tr>')
         for x in xs:
