@@ -17,8 +17,6 @@ Read `hike-kit/rules.md`, `known-huts.yaml` (in the workspace; create it from `h
 Use AskUserQuestion, at most 4 questions per call. Offer sensible options; the user can always type their own answer. Skip anything the user already told you.
 
 - **Round 1:** area or start place; distance (offer the section's range from `section_defaults`); circular or linear; section (Scouts 10–14, Cubs, Explorers).
-- **Round 2:** date and first start time (or "not fixed yet"); number of teams; start interval in minutes; toilet stop length (the default range is 0–30 min).
-- **Round 3:** start/finish base (a known hut, a public car park, or no preference); toilet preference (public toilets, a named scout hut, or a café once confirmed); anything to include or avoid (viewpoints, roads, steep climbs); Street View photos yes or no. Say that Google bills each image, about 4 per location.
 - If `known-huts.yaml` is empty and huts would help, ask whether the user has access to any huts in the area and add them to `known-huts.yaml` once confirmed.
 
 Write the answers into a draft `brief` right away, so a crash loses nothing: `<slug>/hike.yaml` holding only `hike` and `brief`.
